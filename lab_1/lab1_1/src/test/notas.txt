@@ -1,0 +1,7 @@
+para o ex 2 é importante dar add ao jacoco
+
+
+usar mvn clean test jacoco:report
+ver se o jacoco correu o report tem informaçao importante de todas as possibilidades
+o jacoco permite configurar os metodos que nao sao necessarios de testar normalmente os default pela framework
+nao sao necessarios
