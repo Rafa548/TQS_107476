@@ -1,0 +1,6 @@
+demo/GeocodeDemoMain.class
+geocoding/AddressResolverService.class
+connection/TqsBasicHttpClient.class
+geocoding/Address.class
+connection/ISimpleHttpClient.class
+geocoding/ConfigUtils.class

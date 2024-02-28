@@ -1,0 +1,9 @@
+maneira elegane usa-se notaçoes
+
+@mock
+
+@injectmocks
+
+para usar isto é necessario adicionar extend no inicio
+
+expectations a mais faz o teste dar erro, isto é possivel evitar ao dizer ao mokito para ser leniente
