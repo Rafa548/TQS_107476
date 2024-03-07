@@ -33,5 +33,10 @@ The role of the file “application-integrationtest.properties” is to provide 
 provides the properties to access the database.
 
 # e)
+C-> usamos a anotação @WebMvcTest para criar uma ambiente de teste simplificado onde é injetado um objeto MockMvc
+
+D-> é criado um ambiente de teste com @SpringBootTest(webEnvironment = WebEnvironment.MOCK, classes = EmployeeMngrApplication.class) em que não é usado a API
+
+E-> é carregado todo o contexto do SpringBoot usando @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT).Difere do D pois no E é usado um cliente de API completo.
 
 
