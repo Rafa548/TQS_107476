@@ -33,4 +33,8 @@ public class Library {
     public List<Book> getBooksInYearInterval(int yearStart, int yearEnd) {
         return books.stream().filter((b) -> Integer.parseInt(b.getPublicationDate().split("-")[2]) >= yearStart && Integer.parseInt(b.getPublicationDate().split("-")[2]) <= yearEnd).toList();
     }
+
+    public List<Book> getBooksByTitle(String title) {
+        return books.stream().filter((b) -> b.getTitle().equals(title)).toList();
+    }
 }

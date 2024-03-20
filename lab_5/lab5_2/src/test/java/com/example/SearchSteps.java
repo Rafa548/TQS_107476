@@ -48,4 +48,36 @@ public class SearchSteps {
         assertEquals(books.get(n - 1).getTitle(), title);
     }
 
+
+    @When("The customer searches for books with category {string}")
+    public void search_books_by_category(String category) {
+        log.info("Searching books in the category {}", category);
+        books = library.getBooksByCategory(category);
+        log.info("Books found: {}", books);
+    }
+
+    @Then("The {int} book should have the author {string}")
+    public void book_number_n_has_author(int n, String author) {
+        assertEquals(books.get(n - 1).getAuthor(), author);
+    }
+
+    @When("The customer searches for books written by {string}")
+    public void search_books_by_author(String author) {
+        log.info("Searching books by author {}", author);
+        books = library.getBooksByAuthor(author);
+        log.info("Books found: {}", books);
+    }
+
+    @When("The customer searches for books with title {}")
+    public void search_books_by_title(String title) {
+        log.info("Searching books by title {}", title);
+        books = library.getBooksByTitle(title);
+        log.info("Books found: {}", books);
+    }
+
+    @Then("All books should have {} as author")
+    public void all_books_have_author(String author) {
+        books.forEach(book -> assertEquals(book.getAuthor(), author));
+    }
+
 }

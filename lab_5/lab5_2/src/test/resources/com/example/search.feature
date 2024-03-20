@@ -18,17 +18,17 @@ Feature: Book search
   Scenario: Search books by title
     When The customer searches for books with title 'idc'
     Then 1 book should have been found
-    And The Book should have the title 'idc'
+    And The Book 1 should have the title 'idc'
 
   Scenario: Search book by author
     When The customer searches for books written by 'Tom Sayer'
-    Then 2 books should have been found
-    And Book 1 should have the title 'idk'
-    And Book 2 should have the title 'Science is cool'
+    Then 2 book should have been found
+    And The Book 1 should have the title 'idk'
+    And The Book 2 should have the title 'Science is cool'
     And All books should have 'Tom Sayer' as author
 
   Scenario: Search books by category
     When The customer searches for books with category 'sci-fi'
-    Then 2 books should have been found
-    And Book 1 should have the title 'idc'
-    And Book 2 should have the title 'How to fly like a chicken'
+    Then 2 book should have been found
+    And The Book 1 should have the title 'idc'
+    And The Book 2 should have the title 'How to fly like a chicken'
