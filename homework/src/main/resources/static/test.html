@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bus Ticketing Service</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .route {
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+
+        .stops {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .stop {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            width: 200px;
+            cursor: pointer; /* Change cursor to pointer on hover */
+        }
+
+        .stop h3 {
+            margin-top: 0;
+        }
+
+        .stop p {
+            margin: 5px 0;
+        }
+
+        .selected-stop-red {
+            background-color: red; /* Change background color of first selected stop to red */
+        }
+
+        .selected-stop-green {
+            background-color: lightgreen; /* Change background color of second selected stop to green */
+        }
+
+        #reserveBtn {
+            display: block;
+            margin: 20px auto;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var firstClickedStop = null; // Store the first clicked stop
+            var secondClickedStop = null; // Store the second clicked stop
+
+            $('#searchResults').on('click', '.stop', function () {
+                var stopId = $(this).data('stop-id');
+
+                // If both stops are already selected, unselect the clicked stop
+                if (firstClickedStop !== null && secondClickedStop !== null) {
+                    $(this).removeClass('selected-stop-red selected-stop-green');
+                    if (firstClickedStop === stopId) {
+                        firstClickedStop = null;
+                    } else if (secondClickedStop === stopId) {
+                        secondClickedStop = null;
+                    }
+                    return;
+                }
+
+                // Toggle selection
+                if ($(this).hasClass('selected-stop-red') || $(this).hasClass('selected-stop-green')) {
+                    $(this).removeClass('selected-stop-red selected-stop-green');
+                    if (firstClickedStop === stopId) {
+                        firstClickedStop = null;
+                    } else if (secondClickedStop === stopId) {
+                        secondClickedStop = null;
+                    }
+                } else {
+                    if (firstClickedStop === null) {
+                        $(this).addClass('selected-stop-red');
+                        firstClickedStop = stopId;
+                    } else if (secondClickedStop === null) {
+                        $(this).addClass('selected-stop-green');
+                        secondClickedStop = stopId;
+                    }
+                }
+            });
+
+            // Function to handle reservation
+            $('#reserveBtn').on('click', function () {
+                if (firstClickedStop !== null && secondClickedStop !== null) {
+                    // Redirect to reservation page with selected stop IDs as query parameters
+                    window.location.href = '/book?stopId1=' + firstClickedStop + '&stopId2=' + secondClickedStop;
+                } else {
+                    alert('Please select two stops.');
+                }
+            });
+
+            // Fetch and render routes
+            $.get("/routes", function (data) {
+                // Assuming data is an array of routes
+                renderRoutes(data);
+            }).fail(function (xhr, status, error) {
+                console.error("Error fetching routes:", error);
+            });
+        });
+
+        function renderRoutes(routes) {
+            var $searchResults = $('#searchResults');
+            $searchResults.empty(); // Clear existing content
+
+            routes.forEach(function (route) {
+                var routeHtml = '<div class="route">';
+                routeHtml += '<h2>Route ID: ' + route.id + '</h2>';
+                routeHtml += '<div class="stops">';
+                route.stops.forEach(function (stop) {
+                    routeHtml += '<div class="stop" data-stop-id="' + stop.id + '">';
+                    routeHtml += '<h3>' + stop.cityName + '</h3>';
+                    routeHtml += '<p>Arrival Time: ' + stop.arrivalTime + '</p>';
+                    routeHtml += '<p>Departure Time: ' + stop.departureTime + '</p>';
+                    routeHtml += '</div>'; // Close .stop
+                });
+                routeHtml += '</div>'; // Close .stops
+                routeHtml += '</div>'; // Close .route
+                $searchResults.append(routeHtml);
+            });
+        }
+    </script>
+</head>
+<body>
+<h1>Search for Bus Tickets</h1>
+
+<!-- Your form for searching can remain as it is -->
+
+<div id="searchResults">
+    <!-- Routes will be dynamically populated here -->
+</div>
+
+<!-- Reservation button -->
+<button id="reserveBtn">Reserve</button>
+
+</body>
+</html>
