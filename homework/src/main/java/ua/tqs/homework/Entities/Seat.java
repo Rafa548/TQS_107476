@@ -22,7 +22,7 @@ public class Seat {
 
     private int seatNumber;
 
-    private int price;
+    private int priceMultiplier;
 
     @ElementCollection
     private List<Boolean> isBooked;

@@ -3,6 +3,7 @@ package ua.tqs.homework.Controllers;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ua.tqs.homework.Services.RouteService;
@@ -24,5 +25,24 @@ public class RouteController {
     public ResponseEntity<?> getAllRoutes() {
         return ResponseEntity.ok(routeService.getAllRoutes());
     }
+
+
+    @GetMapping("/search/{origin}/{destination}")
+    public ResponseEntity<?> searchRoutes(@PathVariable String origin, @PathVariable String destination) {
+        return ResponseEntity.ok(routeService.searchRoutes(origin, destination));
+    }
+
+    @GetMapping("/searchArrival/{destination}")
+    public ResponseEntity<?> searchRoutesDestination(@PathVariable String destination) {
+        return ResponseEntity.ok(routeService.searchRoutesDestination(destination));
+    }
+
+
+    @GetMapping("/searchDeparture/{origin}")
+    public ResponseEntity<?> searchRoutesOrigin(@PathVariable String origin) {
+        return ResponseEntity.ok(routeService.searchRoutesOrigin(origin));
+    }
+
+
 
 }

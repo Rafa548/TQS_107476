@@ -23,6 +23,8 @@ public class Reservation {
 
     private String clientName;
 
+    private int price;
+
     @ManyToOne
     @JoinColumn(name = "route_id")
     private Route route;

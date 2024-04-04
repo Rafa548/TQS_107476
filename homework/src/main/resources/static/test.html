@@ -55,9 +55,43 @@
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript">
+
         $(document).ready(function () {
             var firstClickedStop = null; // Store the first clicked stop
             var secondClickedStop = null; // Store the second clicked stop
+
+            // Fetch city options and populate select elements
+            $.get("/stops", function (data) {
+                populateSelectOptions(data);
+            }).fail(function (xhr, status, error) {
+                console.error("Error fetching cities:", error);
+            });
+
+            // Function to populate select elements with city options
+            function populateSelectOptions(cities) {
+                var $departureSelect = $('#departureCity');
+                var $arrivalSelect = $('#arrivalCity');
+
+                $departureSelect.append($('<option>', {
+                    value: '',
+                    text: ''
+                }));
+                $arrivalSelect.append($('<option>', {
+                    value: '',
+                    text: ''
+                }));
+
+                cities.forEach(function (city) {
+                    $departureSelect.append($('<option>', {
+                        value: city.cityName,
+                        text: city.cityName
+                    }));
+                    $arrivalSelect.append($('<option>', {
+                        value: city.cityName,
+                        text: city.cityName
+                    }));
+                });
+            }
 
             $('#searchResults').on('click', '.stop', function () {
                 var stopId = $(this).data('stop-id');
@@ -92,6 +126,39 @@
                 }
             });
 
+
+            // Log selected departure city
+            $('#departureCity').on('change', function () {
+                //console.log('Arrival city selected:', $(this).val());
+                updateRoutes();
+            });
+
+            // Log selected arrival city
+            $('#arrivalCity').on('change', function () {
+                //console.log('Arrival city selected:', $(this).val());
+                updateRoutes();
+            });
+
+            // Function to update routes based on selected cities
+            function updateRoutes() {
+                //console.log('Updating routes...');
+                var departureCityName = $('#departureCity').val();
+                //console.log('Departure city ID:', departureCityId);
+                var arrivalCityName = $('#arrivalCity').val();
+                //console.log('Arrival city ID:', arrivalCityId);
+
+                // Make AJAX request to fetch routes based on selected cities
+                $.get("/routes/search/" + departureCityName  + "/" + arrivalCityName, function (data) {
+                    //console.log(data)
+                    renderRoutes(data);
+                }).fail(function (xhr, status, error) {
+                    console.error("Error fetching routes:", error);
+                });
+            }
+
+            // Fetch and render routes initially
+            updateRoutes();
+
             // Function to handle reservation
             $('#reserveBtn').on('click', function () {
                 if (firstClickedStop !== null && secondClickedStop !== null) {
@@ -101,42 +168,50 @@
                     alert('Please select two stops.');
                 }
             });
-
-            // Fetch and render routes
-            $.get("/routes", function (data) {
-                // Assuming data is an array of routes
-                renderRoutes(data);
-            }).fail(function (xhr, status, error) {
-                console.error("Error fetching routes:", error);
-            });
         });
 
         function renderRoutes(routes) {
             var $searchResults = $('#searchResults');
             $searchResults.empty(); // Clear existing content
 
-            routes.forEach(function (route) {
-                var routeHtml = '<div class="route">';
-                routeHtml += '<h2>Route ID: ' + route.id + '</h2>';
-                routeHtml += '<div class="stops">';
-                route.stops.forEach(function (stop) {
-                    routeHtml += '<div class="stop" data-stop-id="' + stop.id + '">';
-                    routeHtml += '<h3>' + stop.cityName + '</h3>';
-                    routeHtml += '<p>Arrival Time: ' + stop.arrivalTime + '</p>';
-                    routeHtml += '<p>Departure Time: ' + stop.departureTime + '</p>';
-                    routeHtml += '</div>'; // Close .stop
+            if (routes.length === 0) {
+                $searchResults.html('<p>No routes available for the selected cities.</p>');
+            } else {
+                routes.forEach(function (route) {
+                    var routeHtml = '<div class="route">';
+                    routeHtml += '<h2>Route ID: ' + route.id + '</h2>';
+                    routeHtml += '<div class="stops">';
+                    route.stops.forEach(function (stop) {
+                        routeHtml += '<div class="stop" data-stop-id="' + stop.id + '">';
+                        routeHtml += '<h3>' + stop.cityName + '</h3>';
+                        routeHtml += '<p>Arrival Time: ' + stop.arrivalTime + '</p>';
+                        routeHtml += '<p>Departure Time: ' + stop.departureTime + '</p>';
+                        routeHtml += '</div>'; // Close .stop
+                    });
+                    routeHtml += '</div>'; // Close .stops
+                    routeHtml += '</div>'; // Close .route
+                    $searchResults.append(routeHtml);
                 });
-                routeHtml += '</div>'; // Close .stops
-                routeHtml += '</div>'; // Close .route
-                $searchResults.append(routeHtml);
-            });
+            }
         }
     </script>
 </head>
 <body>
 <h1>Search for Bus Tickets</h1>
 
-<!-- Your form for searching can remain as it is -->
+<!-- Select elements for city options -->
+<div>
+    <label for="departureCity">Departure City:</label>
+    <select id="departureCity">
+        <!-- Options will be dynamically populated -->
+    </select>
+</div>
+<div>
+    <label for="arrivalCity">Arrival City:</label>
+    <select id="arrivalCity">
+        <!-- Options will be dynamically populated -->
+    </select>
+</div>
 
 <div id="searchResults">
     <!-- Routes will be dynamically populated here -->
