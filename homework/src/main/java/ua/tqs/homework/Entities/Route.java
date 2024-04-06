@@ -20,11 +20,15 @@ import java.util.List;
 public class Route {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "route")
-    @JsonIgnoreProperties("route")
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    @JoinTable(name = "stop_route",
+            joinColumns = @JoinColumn(name = "stop_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "route_id",
+                    referencedColumnName = "id"))
+    @JsonIgnoreProperties("routes")
     private List<Stop> stops;
 
     @OneToMany(mappedBy = "route")

@@ -104,4 +104,12 @@ public class RouteService {
         }
         return routesFound;
     }
+
+    public Object getRouteSeats(Long id) {
+        Route route = routeRepository.findById(id).orElse(null);
+        if (route == null) {
+            return "Route not found";
+        }
+        return route.getSeats();
+    }
 }

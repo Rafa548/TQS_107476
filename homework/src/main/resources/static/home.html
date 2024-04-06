@@ -1,3 +1,4 @@
+Beautiful and expensive website
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,6 +60,7 @@
         $(document).ready(function () {
             var firstClickedStop = null; // Store the first clicked stop
             var secondClickedStop = null; // Store the second clicked stop
+            var selectedRouteId = null;
 
             // Fetch city options and populate select elements
             $.get("/stops", function (data) {
@@ -93,37 +95,70 @@
                 });
             }
 
+            $('#searchResults').on('click', '.route', function () {
+                // Get the route ID from the clicked route element's data attribute
+                selectedRouteId = $(this).data('route-id');
+                //console.log("Selected Route ID:", selectedRouteId);
+            });
+
             $('#searchResults').on('click', '.stop', function () {
                 var stopId = $(this).data('stop-id');
+                var clickedStopIndex = $('.stop').index($(this));
 
                 // If both stops are already selected, unselect the clicked stop
                 if (firstClickedStop !== null && secondClickedStop !== null) {
                     $(this).removeClass('selected-stop-red selected-stop-green');
-                    if (firstClickedStop === stopId) {
-                        firstClickedStop = null;
-                    } else if (secondClickedStop === stopId) {
-                        secondClickedStop = null;
+                    if (firstClickedStop === stopId || secondClickedStop === stopId) {
+                        if (firstClickedStop === stopId) {
+                            firstClickedStop = null;
+                        } else if (secondClickedStop === stopId) {
+                            secondClickedStop = null;
+                        }
                     }
                     return;
                 }
 
-                // Toggle selection
-                if ($(this).hasClass('selected-stop-red') || $(this).hasClass('selected-stop-green')) {
-                    $(this).removeClass('selected-stop-red selected-stop-green');
-                    if (firstClickedStop === stopId) {
-                        firstClickedStop = null;
-                    } else if (secondClickedStop === stopId) {
-                        secondClickedStop = null;
-                    }
-                } else {
-                    if (firstClickedStop === null) {
+                // If the clicked stop is the first stop, toggle its selection
+                if (firstClickedStop === stopId) {
+                    $(this).removeClass('selected-stop-red');
+                    firstClickedStop = null;
+                    return;
+                }
+
+                // If the clicked stop is the second stop, toggle its selection
+                if (secondClickedStop === stopId) {
+                    $(this).removeClass('selected-stop-green');
+                    secondClickedStop = null;
+                    return;
+                }
+
+                // If no stops are selected yet or the clicked stop comes after the first selected stop, select it as the second stop
+                if (firstClickedStop === null || clickedStopIndex > $('.stop').index($('.stop[data-stop-id="' + firstClickedStop + '"]'))) {
+                    // If no stops are selected yet, select the clicked stop as the first stop
+                    if (firstClickedStop === null && secondClickedStop === null) {
                         $(this).addClass('selected-stop-red');
                         firstClickedStop = stopId;
-                    } else if (secondClickedStop === null) {
+                    } else if (firstClickedStop !== null && secondClickedStop === null && clickedStopIndex > $('.stop').index($('.stop[data-stop-id="' + firstClickedStop + '"]'))) {
+                        // If the first stop is already selected and the clicked stop comes after it, select the clicked stop as the second stop
                         $(this).addClass('selected-stop-green');
                         secondClickedStop = stopId;
                     }
                 }
+            });
+
+
+
+
+
+
+            // Event handler for changing the first stop selection
+            $('#searchResults').on('click', '.selected-stop-red', function () {
+                if (secondClickedStop !== null) {
+                    $('.stop[data-stop-id="' + secondClickedStop + '"]').removeClass('selected-stop-green');
+                    secondClickedStop = null;
+                }
+                $(this).removeClass('selected-stop-red');
+                firstClickedStop = null;
             });
 
 
@@ -161,15 +196,20 @@
 
             // Function to handle reservation
             $('#reserveBtn').on('click', function () {
-                if (firstClickedStop !== null && secondClickedStop !== null) {
-                    // Redirect to reservation page with selected stop IDs as query parameters
-                    window.location.href = '/book?stopId1=' + firstClickedStop + '&stopId2=' + secondClickedStop;
+                if (firstClickedStop !== null && secondClickedStop !== null && selectedRouteId !== null) {
+                    // Redirect to reservation page with selected stop IDs and route ID as query parameters
+                    console.log('Reserving ticket for stops:', firstClickedStop, secondClickedStop, 'on route:', selectedRouteId);
+                    //window.location.href = '/book?stopId1=' + firstClickedStop + '&stopId2=' + secondClickedStop + '&routeId=' + selectedRouteId;
+                    //window.location.href = '/reservation_confirmation.html';
+                    // Redirect with query parameters
+                    window.location.href = 'reservation_confirmation.html?stopId1=' + firstClickedStop + '&stopId2=' + secondClickedStop + '&routeId=' + selectedRouteId;
                 } else {
-                    alert('Please select two stops.');
+                    alert('Please select two stops and a route.');
                 }
             });
         });
 
+        // Function to render routes
         function renderRoutes(routes) {
             var $searchResults = $('#searchResults');
             $searchResults.empty(); // Clear existing content
@@ -178,7 +218,7 @@
                 $searchResults.html('<p>No routes available for the selected cities.</p>');
             } else {
                 routes.forEach(function (route) {
-                    var routeHtml = '<div class="route">';
+                    var routeHtml = '<div class="route" data-route-id="' + route.id + '">';
                     routeHtml += '<h2>Route ID: ' + route.id + '</h2>';
                     routeHtml += '<div class="stops">';
                     route.stops.forEach(function (stop) {
@@ -190,10 +230,12 @@
                     });
                     routeHtml += '</div>'; // Close .stops
                     routeHtml += '</div>'; // Close .route
+
                     $searchResults.append(routeHtml);
                 });
             }
         }
+
     </script>
 </head>
 <body>

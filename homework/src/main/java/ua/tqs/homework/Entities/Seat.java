@@ -17,7 +17,7 @@ import java.util.List;
 public class Seat {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private int seatNumber;
@@ -27,10 +27,11 @@ public class Seat {
     @ElementCollection
     private List<Boolean> isBooked;
 
-    public Seat(int seatNumber, List<Boolean> isBooked, Route route) {
+    public Seat(int seatNumber,int priceMultiplier, List<Boolean> isBooked, Route route) {
         this.seatNumber = seatNumber;
         this.isBooked = isBooked;
         this.route = route;
+        this.priceMultiplier = priceMultiplier;
     }
 
     @ManyToMany(mappedBy = "seats")
@@ -40,6 +41,8 @@ public class Seat {
     @JoinColumn(name = "route_id")
     private Route route;
 
+
+    //probably desnecessario
     @ManyToMany(mappedBy = "leavingSeats")
     private List<Stop> stops;
 }

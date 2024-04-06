@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation Confirmation</title>
+</head>
+<body>
+<h1>Reservation Confirmation</h1>
+<p id="confirmationMessage"></p>
+
+<form id="reservationForm">
+    <label for="clientName">Client Name:</label>
+    <input type="text" id="clientName" name="clientName"><br><br>
+
+    <label for="numberOfSeats">Number of Seats:</label>
+    <select id="numberOfSeats" name="numberOfSeats">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+    </select><br><br>
+
+    <div id="seatSelection">
+        <!-- Seat selection options will be dynamically populated here -->
+    </div><br>
+
+    <input type="submit" value="Confirm Reservation">
+</form>
+
+<script>
+    // Get query parameters from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const stopId1 = urlParams.get('stopId1');
+    const stopId2 = urlParams.get('stopId2');
+    const routeId = urlParams.get('routeId');
+
+    // Display the confirmation message with the received data
+    const confirmationMessage = `Your reservation for stops ${stopId1} and ${stopId2} on route ${routeId} has been confirmed.`;
+    document.getElementById('confirmationMessage').textContent = confirmationMessage;
+
+    // Add event listener to the form submission
+    document.getElementById('reservationForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission behavior
+
+        // Get form data
+        const formData = new FormData(event.target);
+        const clientName = formData.get('clientName');
+        const numberOfSeats = formData.get('numberOfSeats');
+
+        // Log the form data (you can modify this part to handle the form data as needed)
+        console.log('Client Name:', clientName);
+        console.log('Number of Seats:', numberOfSeats);
+
+    });
+</script>
+</body>
+</html>

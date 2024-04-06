@@ -18,12 +18,10 @@ import java.util.List;
 public class Reservation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String clientName;
-
-    private int price;
 
     @ManyToOne
     @JoinColumn(name = "route_id")
@@ -37,13 +35,13 @@ public class Reservation {
     @JoinColumn(name = "arr_stop_id")
     private Stop arrivalStop;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "seat_reservation",
             joinColumns = @JoinColumn(name = "seat_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "reservation_id",
                     referencedColumnName = "id"))
     private List<Seat> seats;
 
+    @Column(unique = true)
     private int confirmationCode;
-
 }

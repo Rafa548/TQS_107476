@@ -19,30 +19,32 @@ import java.util.List;
 public class Stop {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
+    @Column(unique = true)
     private String cityName;
 
     private String arrivalTime;
 
     private String departureTime;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+
+    //probably desnecessario
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "seat_stop",
             joinColumns = @JoinColumn(name = "seat_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "stop_id",
                     referencedColumnName = "id"))
     private List<Seat> leavingSeats;
 
-    @ManyToOne
-    @JoinColumn(name = "route_id")
-    private Route route;
+    @ManyToMany(mappedBy = "stops")
+    private List<Route> routes;
 
-    public Stop(String cityName, String arrivalTime, String departureTime, Route route) {
+    public Stop(String cityName, String arrivalTime, String departureTime) {
         this.cityName = cityName;
         this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;
-        this.route = route;
     }
 }
