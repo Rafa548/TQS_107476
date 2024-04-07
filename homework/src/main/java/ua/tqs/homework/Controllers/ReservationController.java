@@ -5,7 +5,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ua.tqs.homework.Entities.Reservation;
+import ua.tqs.homework.Entities.Route;
+import ua.tqs.homework.Entities.Seat;
 import ua.tqs.homework.Services.ReservationService;
+import ua.tqs.homework.Services.RouteService;
+import ua.tqs.homework.Services.SeatService;
 
 import java.util.List;
 
@@ -15,17 +19,41 @@ public class ReservationController {
 
     private ReservationService reservationService;
 
-    public ReservationController(ReservationService reservationService) {
+    private SeatService seatService;
+
+    private RouteService routeService;
+
+    public ReservationController(ReservationService reservationService, SeatService seatService, RouteService routeService) {
         this.reservationService = reservationService;
+        this.seatService = seatService;
+        this.routeService = routeService;
     }
 
 
     @PostMapping()
     public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservation) {
-        //vai ser preciso verificar se a reserva é válida e se há lugares disponíveis
-        HttpStatus status = HttpStatus.CREATED;
+        List<Seat> seats = reservation.getSeats();
+
+        for (Seat seat : seats) {
+            Seat seatInDb = seatService.getSeatDetails(seat.getId()).orElse(null);
+            if (seatInDb == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            //System.out.println(seatInDb.getIsBooked());
+            //System.out.println(seat.getIsBooked());
+            seatInDb.setIsBooked(seat.getIsBooked());
+            //System.out.println(seatInDb.getIsBooked());
+            seatService.saveSeat(seatInDb);
+        }
+        Route route = reservation.getRoute();
+        Route routeInDb = routeService.getRouteDetails(route.getId()).orElse(null);
+        if (routeInDb == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        reservation.setRoute(routeInDb);
+
         reservationService.saveReservation(reservation);
-        return new ResponseEntity<>(reservation, status);
+        return new ResponseEntity<>(reservation, HttpStatus.CREATED);
     }
 
 

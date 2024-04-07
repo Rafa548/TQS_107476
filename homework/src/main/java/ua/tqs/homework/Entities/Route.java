@@ -28,14 +28,15 @@ public class Route {
             joinColumns = @JoinColumn(name = "stop_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "route_id",
                     referencedColumnName = "id"))
-    @JsonIgnoreProperties("routes")
+    @JsonIgnoreProperties({"routes","leavingSeats","departingReservations","arrivingReservations"})
     private List<Stop> stops;
 
     @OneToMany(mappedBy = "route")
+    @JsonIgnoreProperties({"route",})
     private List<Reservation> reservations;
 
     @OneToMany(mappedBy = "route")
-    @JsonIgnoreProperties("route")
+    @JsonIgnoreProperties({"route","stops"})
     private List<Seat> seats;
 
     public Route( List<Seat> seats) {

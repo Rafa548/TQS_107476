@@ -42,38 +42,11 @@ public class BusApplication {
         Route route1 = new Route();
         routeService.saveRoute(route1);
 
-
-        List<Seat> seats = new ArrayList<>();
-        List<Boolean> isBooked = new ArrayList<>();
-
-        try {
-            int n_stops = route1.getStops().size();
-
-            for (int i = 0; i < n_stops; i++) {
-                isBooked.add(false);
-            }
-        } catch (Exception e) {
-            System.out.println("exception: " + e);
-        }
-
-
-        for (int i = 1; i <= 10; i++) {
-            Seat seat = new Seat(i,1, isBooked, route1);
-            seatService.saveSeat(seat);
-            seats.add(seat);
-        }
-
-        for (int i = 1; i <= 4; i++) {
-            Seat seat = new Seat(i,2, isBooked, route1);
-            seatService.saveSeat(seat);
-            seats.add(seat);
-        }
-
         Stop stop1 = new Stop("Porto", "5", "6");
-        Stop stop2 = new Stop("Lisboa", "7", "8");
-        Stop stop3 = new Stop("Braga", "9", "10");
-        Stop stop4 = new Stop("Coimbra","11", "12");
-        Stop stop5 = new Stop("Faro","13", "14");
+        Stop stop2 = new Stop("Lisboa", "6", "8");
+        Stop stop3 = new Stop("Braga", "8", "10");
+        Stop stop4 = new Stop("Coimbra","10", "12");
+        Stop stop5 = new Stop("Faro","12", "14");
 
         route1.setStops(List.of(stop1, stop2, stop3, stop4, stop5));
 
@@ -82,8 +55,41 @@ public class BusApplication {
         stopService.saveStop(stop3);
         stopService.saveStop(stop4);
         stopService.saveStop(stop5);
-
         routeService.saveRoute(route1);
+
+
+        List<Seat> seats = new ArrayList<>();
+        List<Boolean> isBooked = new ArrayList<>();
+        List<Boolean> isBookedTrue = new ArrayList<>();
+
+        try {
+            int n_stops = route1.getStops().size()-1; //beginning never has a stop
+
+            for (int i = 0; i < n_stops; i++) {
+                isBooked.add(false);
+                isBookedTrue.add(true);
+            }
+        } catch (Exception e) {
+            System.out.println("exception: " + e);
+        }
+
+
+        //generate seats with letter and number
+        String[] letters = {"A", "B", "C", "D"};
+        for (int i = 1; i <= 4; i++) {
+            for (String letter : letters) {
+                if (letter.equals("A")) {
+                    Seat seat = new Seat(i + letter, 2, isBookedTrue, route1);
+                    seatService.saveSeat(seat);
+                    seats.add(seat);
+                }
+                else {
+                    Seat seat = new Seat(i + letter, 1, isBooked, route1);
+                    seatService.saveSeat(seat);
+                    seats.add(seat);
+                }
+            }
+        }
     }
 
 

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservation Confirmation</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
 <h1>Reservation Confirmation</h1>
@@ -15,6 +16,7 @@
 
     <label for="numberOfSeats">Number of Seats:</label>
     <select id="numberOfSeats" name="numberOfSeats">
+        <option value="">Select number of seats</option>
         <option value="1">1</option>
         <option value="2">2</option>
         <option value="3">3</option>
@@ -32,27 +34,151 @@
 <script>
     // Get query parameters from the URL
     const urlParams = new URLSearchParams(window.location.search);
-    const stopId1 = urlParams.get('stopId1');
-    const stopId2 = urlParams.get('stopId2');
-    const routeId = urlParams.get('routeId');
+
+    const stopId1 = parseInt(urlParams.get('stopId1'));
+    const stopId2 = parseInt(urlParams.get('stopId2'));
+    const routeId = parseInt(urlParams.get('routeId'));
 
     // Display the confirmation message with the received data
     const confirmationMessage = `Your reservation for stops ${stopId1} and ${stopId2} on route ${routeId} has been confirmed.`;
     document.getElementById('confirmationMessage').textContent = confirmationMessage;
 
+    // Function to populate seat options based on the selected number of seats
+    function populateSeatOptions(numberOfSeats) {
+        const seatSelectionDiv = $('#seatSelection');
+        seatSelectionDiv.empty(); // Clear previous seat selection options
+
+        $.get("/routes/"+routeId+"/seats", function(availableSeats) {
+            //console.log("Available seats:", availableSeats);
+            for (let i = 0; i < numberOfSeats; i++) {
+                const select = $('<select>').attr('name', `seat${i + 1}`).html('<option value="">Select a seat</option>');
+
+                // Add available seat options to select element
+                availableSeats.forEach(seat => {
+                    //-2 because the array is 0-indexed and the first stop is not there
+                    if (!seat.isBooked[stopId2-2]) {
+                        console.log("SeatArray:", seat.isBooked[stopId2-2]);
+                        const option = $('<option>').attr('value', seat.id).text(seat.seatIdentifier);
+                        select.append(option);
+                    }
+                });
+
+                seatSelectionDiv.append(select);
+            }
+        }).fail(function(xhr, status, error) {
+            console.error("Error fetching available seats:", error);
+        });
+    }
+
+    function fetchRoute(routeId) {
+        // Return a promise
+        return new Promise(function(resolve, reject) {
+            // Make AJAX request to get route information
+            $.get(`/routes/${routeId}`, function(route) {
+                // Resolve the promise with the route data
+                resolve(route);
+            }).fail(function(xhr, status, error) {
+                // Reject the promise with the error
+                reject(error);
+            });
+        });
+    }
+
+    // Add event listener to the number of seats dropdown
+    $('#numberOfSeats').on('change', function() {
+        const numberOfSeats = parseInt($(this).val());
+        populateSeatOptions(numberOfSeats);
+    });
+
     // Add event listener to the form submission
-    document.getElementById('reservationForm').addEventListener('submit', function(event) {
+    $('#reservationForm').on('submit', function(event) {
         event.preventDefault(); // Prevent default form submission behavior
 
         // Get form data
-        const formData = new FormData(event.target);
-        const clientName = formData.get('clientName');
-        const numberOfSeats = formData.get('numberOfSeats');
+        const formData = $(this).serializeArray();
+        const clientName = formData.find(field => field.name === 'clientName').value;
+        const numberOfSeats = formData.find(field => field.name === 'numberOfSeats').value;
 
         // Log the form data (you can modify this part to handle the form data as needed)
-        console.log('Client Name:', clientName);
-        console.log('Number of Seats:', numberOfSeats);
+        //console.log('Client Name:', clientName);
+        //console.log('Number of Seats:', numberOfSeats);
 
+        const selectedSeats = [];
+        for (let i = 0; i < numberOfSeats; i++) {
+            const seat = parseInt(formData.find(field => field.name === `seat${i + 1}`).value);
+            if (selectedSeats.includes(seat)) {
+                alert('Please select different seats');
+                return;
+            }
+            selectedSeats.push(seat);
+        }
+        //console.log('Selected Seats:', selectedSeats);
+
+        fetchRoute(routeId)
+            .then(function(route) {
+                // Handle the fetched route data here
+                //console.log("dasdmasidiasndjaisda:", route.seats);
+                let reservedSeats = [];
+                //delete all the seats
+                reservedSeats = [];
+                for (let i = 0; i < selectedSeats.length; i++) {
+                    const seatID = parseInt(selectedSeats[i]);
+                    const seatIndex = route.seats.findIndex(s => s.id === seatID);
+                    const bookIndex = stopId2 - 2; //stopId2-2 because the array is 0-indexed + 1st stop not there
+                    route.seats[seatIndex].isBooked[bookIndex]=true;
+                    //console.log("stopId2-1:", stopId2 - 1);
+                    //console.log("SeatIndex:", seatIndex);
+                    //console.log("Seat:", route.seats[seatIndex]);
+                    reservedSeats.push(route.seats[seatIndex]);
+                    //console.log("Reserved Seats:", reservedSeats);
+                }
+                //console.log("Updated Route:", route);
+                //get the stopId2-1 because the array is 0-indexed
+                let stopIdJson1;
+                let stopIdJson2;
+                for  (let i = 0; i < route.stops.length; i++) {
+                    if (route.stops[i].id === stopId2) {
+                        stopIdJson2 = route.stops[i];
+                    }
+                    if (route.stops[i].id === stopId1) {
+                        stopIdJson1 = route.stops[i];
+                    }
+                }
+                //console.log("StopIdJson1:", stopIdJson1);
+                //console.log("StopIdJson2:", stopIdJson2);
+
+                // Prepare reservation JSON object
+                const reservationData = {
+                    clientName: clientName,
+                    route: route,
+                    departureStop: stopIdJson1,
+                    arrivalStop: stopIdJson2,
+                    seats: reservedSeats
+                    // Add other necessary fields
+                };
+
+                //console.log("Reservation data:", reservationData);
+
+                // Make POST request to create reservation
+                $.ajax({
+                    url: '/reservation',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(reservationData),
+                    success: function(response) {
+                        //console.log('Reservation created successfully:', response);
+                        // Handle success
+                    },
+                    error: function(xhr, status, error) {
+                        //console.error('Error creating reservation:', error);
+                        // Handle error
+                    }
+                });
+            })
+            .catch(function(error) {
+                // Handle errors here
+                //console.error("Error fetching route information:", error);
+            });
     });
 </script>
 </body>

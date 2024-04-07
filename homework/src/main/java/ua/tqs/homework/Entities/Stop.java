@@ -1,6 +1,7 @@
 package ua.tqs.homework.Entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,7 +31,6 @@ public class Stop {
 
     private String departureTime;
 
-
     //probably desnecessario
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "seat_stop",
@@ -40,7 +40,17 @@ public class Stop {
     private List<Seat> leavingSeats;
 
     @ManyToMany(mappedBy = "stops")
+    @JsonIgnoreProperties({"stops","reservations","seats"})
     private List<Route> routes;
+
+
+    @OneToMany(mappedBy = "departureStop")
+    @JsonIgnoreProperties({"departureStop","arrivalStop","seats:id","route"})
+    private List<Reservation> departingReservations;
+
+    @OneToMany(mappedBy = "arrivalStop")
+    @JsonIgnoreProperties({"departureStop","arrivalStop","seats","route"})
+    private List<Reservation> arrivingReservations;
 
     public Stop(String cityName, String arrivalTime, String departureTime) {
         this.cityName = cityName;

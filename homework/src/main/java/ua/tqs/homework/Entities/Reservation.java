@@ -1,6 +1,7 @@
 package ua.tqs.homework.Entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,23 +26,25 @@ public class Reservation {
 
     @ManyToOne
     @JoinColumn(name = "route_id")
+    @JsonIgnoreProperties({"reservations","stops","seats"})
     private Route route;
 
     @ManyToOne
     @JoinColumn(name = "dep_stop_id")
+    @JsonIgnoreProperties({"departingReservations","arrivingReservations","leavingSeats","routes","arrivalTime"})
     private Stop departureStop;
 
     @ManyToOne
     @JoinColumn(name = "arr_stop_id")
+    @JsonIgnoreProperties({"departingReservations","arrivingReservations","leavingSeats","routes","departureTime"})
     private Stop arrivalStop;
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany
     @JoinTable(name = "seat_reservation",
             joinColumns = @JoinColumn(name = "seat_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "reservation_id",
                     referencedColumnName = "id"))
+    @JsonIgnoreProperties({"reservations","route","stops"})
     private List<Seat> seats;
 
-    @Column(unique = true)
-    private int confirmationCode;
 }

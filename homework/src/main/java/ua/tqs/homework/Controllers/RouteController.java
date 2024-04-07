@@ -48,6 +48,11 @@ public class RouteController {
         return ResponseEntity.ok(routeService.getRouteSeats(id));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getRouteDetails(@PathVariable Long id) {
+        return ResponseEntity.ok(routeService.getRouteDetails(id));
+    }
+
 
 
 }
