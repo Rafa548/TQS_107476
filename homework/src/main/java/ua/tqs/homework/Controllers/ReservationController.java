@@ -12,6 +12,7 @@ import ua.tqs.homework.Services.RouteService;
 import ua.tqs.homework.Services.SeatService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/reservation")
@@ -32,6 +33,7 @@ public class ReservationController {
 
     @PostMapping()
     public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservation) {
+        String authToken = UUID.randomUUID().toString();
         List<Seat> seats = reservation.getSeats();
 
         for (Seat seat : seats) {
@@ -51,6 +53,7 @@ public class ReservationController {
             return ResponseEntity.badRequest().build();
         }
         reservation.setRoute(routeInDb);
+        reservation.setAuthToken(authToken);
 
         reservationService.saveReservation(reservation);
         return new ResponseEntity<>(reservation, HttpStatus.CREATED);

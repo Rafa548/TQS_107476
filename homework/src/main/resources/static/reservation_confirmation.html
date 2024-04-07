@@ -5,8 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservation Confirmation</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">UABUS</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="home.html">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Your Reservation</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
 <h1>Reservation Confirmation</h1>
 <p id="confirmationMessage"></p>
 
@@ -26,13 +46,44 @@
 
     <div id="seatSelection">
         <!-- Seat selection options will be dynamically populated here -->
-    </div><br>
+    </div>
+
+    <p>Total Price: <span id="totalPriceDisplay">$0.00</span></p>
 
     <input type="submit" value="Confirm Reservation">
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Reservation Confirmation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>For future reservation checkup please keep this safe</p>
+                    <p>Reservation Code: <span id="modalReservationId"></span> </p>
+                    <p>Reservation AuthCode: <span id="modalReservationAuthCode"></span> </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="closeModalBtn" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </form>
 
 <script>
     // Get query parameters from the URL
+    $('#closeModalBtn').on('click', function() {
+        // Redirect to home page
+        window.location.href = 'home.html';
+    });
+
+
     const urlParams = new URLSearchParams(window.location.search);
 
     const stopId1 = parseInt(urlParams.get('stopId1'));
@@ -49,15 +100,12 @@
         seatSelectionDiv.empty(); // Clear previous seat selection options
 
         $.get("/routes/"+routeId+"/seats", function(availableSeats) {
-            //console.log("Available seats:", availableSeats);
             for (let i = 0; i < numberOfSeats; i++) {
                 const select = $('<select>').attr('name', `seat${i + 1}`).html('<option value="">Select a seat</option>');
 
-                // Add available seat options to select element
                 availableSeats.forEach(seat => {
                     //-2 because the array is 0-indexed and the first stop is not there
                     if (!seat.isBooked[stopId2-2]) {
-                        console.log("SeatArray:", seat.isBooked[stopId2-2]);
                         const option = $('<option>').attr('value', seat.id).text(seat.seatIdentifier);
                         select.append(option);
                     }
@@ -71,14 +119,10 @@
     }
 
     function fetchRoute(routeId) {
-        // Return a promise
         return new Promise(function(resolve, reject) {
-            // Make AJAX request to get route information
             $.get(`/routes/${routeId}`, function(route) {
-                // Resolve the promise with the route data
                 resolve(route);
             }).fail(function(xhr, status, error) {
-                // Reject the promise with the error
                 reject(error);
             });
         });
@@ -87,21 +131,49 @@
     // Add event listener to the number of seats dropdown
     $('#numberOfSeats').on('change', function() {
         const numberOfSeats = parseInt($(this).val());
+        $('#totalPriceDisplay').text('$' + 0);
         populateSeatOptions(numberOfSeats);
+    });
+
+    function updateTotalPrice() {
+        let totalPrice = 0;
+
+        $('select[name^="seat"]').each(function() {
+            const $select = $(this);
+            fetchRoute(routeId)
+                .then(function (route) {
+                    console.log(route);
+                    const seatID = parseInt($select.val());
+                    console.log(seatID)
+                    const seatIndex = route.seats.findIndex(s => s.id === seatID);
+                    console.log(seatIndex);
+                    console.log(route.seats[seatIndex])
+                    const price = route.seats[seatIndex].priceMultiplier;
+                    console.log(price)
+                    totalPrice += price * 10;
+                    $('#totalPriceDisplay').text('$' + totalPrice);
+                })
+                .catch(function (error) {
+                    // Handle errors here
+                });
+        });
+
+    }
+
+    // Event listener for seat selection changes
+    $('#seatSelection').on('change', 'select', function() {
+        updateTotalPrice();
     });
 
     // Add event listener to the form submission
     $('#reservationForm').on('submit', function(event) {
-        event.preventDefault(); // Prevent default form submission behavior
+        event.preventDefault();
 
-        // Get form data
         const formData = $(this).serializeArray();
         const clientName = formData.find(field => field.name === 'clientName').value;
         const numberOfSeats = formData.find(field => field.name === 'numberOfSeats').value;
 
-        // Log the form data (you can modify this part to handle the form data as needed)
-        //console.log('Client Name:', clientName);
-        //console.log('Number of Seats:', numberOfSeats);
+
 
         const selectedSeats = [];
         for (let i = 0; i < numberOfSeats; i++) {
@@ -112,27 +184,17 @@
             }
             selectedSeats.push(seat);
         }
-        //console.log('Selected Seats:', selectedSeats);
 
         fetchRoute(routeId)
             .then(function(route) {
-                // Handle the fetched route data here
-                //console.log("dasdmasidiasndjaisda:", route.seats);
                 let reservedSeats = [];
-                //delete all the seats
-                reservedSeats = [];
                 for (let i = 0; i < selectedSeats.length; i++) {
                     const seatID = parseInt(selectedSeats[i]);
                     const seatIndex = route.seats.findIndex(s => s.id === seatID);
                     const bookIndex = stopId2 - 2; //stopId2-2 because the array is 0-indexed + 1st stop not there
                     route.seats[seatIndex].isBooked[bookIndex]=true;
-                    //console.log("stopId2-1:", stopId2 - 1);
-                    //console.log("SeatIndex:", seatIndex);
-                    //console.log("Seat:", route.seats[seatIndex]);
                     reservedSeats.push(route.seats[seatIndex]);
-                    //console.log("Reserved Seats:", reservedSeats);
                 }
-                //console.log("Updated Route:", route);
                 //get the stopId2-1 because the array is 0-indexed
                 let stopIdJson1;
                 let stopIdJson2;
@@ -144,8 +206,6 @@
                         stopIdJson1 = route.stops[i];
                     }
                 }
-                //console.log("StopIdJson1:", stopIdJson1);
-                //console.log("StopIdJson2:", stopIdJson2);
 
                 // Prepare reservation JSON object
                 const reservationData = {
@@ -157,7 +217,6 @@
                     // Add other necessary fields
                 };
 
-                //console.log("Reservation data:", reservationData);
 
                 // Make POST request to create reservation
                 $.ajax({
@@ -166,18 +225,21 @@
                     contentType: 'application/json',
                     data: JSON.stringify(reservationData),
                     success: function(response) {
+                        $('#confirmationModal').modal('show');
+                        $('#modalReservationId').text(response.id);
+                        $('#modalReservationAuthCode').text(response.authToken);
                         //console.log('Reservation created successfully:', response);
                         // Handle success
                     },
                     error: function(xhr, status, error) {
-                        //console.error('Error creating reservation:', error);
+                        console.error('Error creating reservation:', error);
                         // Handle error
                     }
                 });
             })
             .catch(function(error) {
                 // Handle errors here
-                //console.error("Error fetching route information:", error);
+                console.error("Error fetching route information:", error);
             });
     });
 </script>

@@ -47,4 +47,7 @@ public class Reservation {
     @JsonIgnoreProperties({"reservations","route","stops"})
     private List<Seat> seats;
 
+    @Column(unique = true)
+    private String authToken;
+
 }
