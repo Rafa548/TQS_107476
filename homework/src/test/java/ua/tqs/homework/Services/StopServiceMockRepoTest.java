@@ -18,10 +18,11 @@ import ua.tqs.homework.repository.StopRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class StopServiceMockRepoTest {
+class StopServiceMockRepoTest {
 
     @Mock
     RouteRepository routeRepository;
@@ -84,12 +85,10 @@ public class StopServiceMockRepoTest {
 
         List<Stop> allStops = stopService.getAllStops();
 
-        assert (allStops.size() == 5);
-        assert (allStops.contains(stopPorto));
-        assert (allStops.contains(stopLisboa));
-        assert (allStops.contains(stopBraga));
-        assert (allStops.contains(stopCoimbra));
-        assert (allStops.contains(stopFaro));
+        assertEquals(allStops.size(), 5);
+        assertEquals(allStops.get(0), stopPorto);
+        assertEquals(allStops.get(1), stopLisboa);
+        assertEquals(allStops.get(2), stopBraga);
     }
 
 
@@ -100,6 +99,8 @@ public class StopServiceMockRepoTest {
         Stop stop = stopService.getStopDetails(stopPorto.getId());
 
         assert (stop.equals(stopPorto));
+        assertEquals(stop, stopPorto);
+        assertEquals(stop.getCityName(), stopPorto.getCityName());
     }
 
 }

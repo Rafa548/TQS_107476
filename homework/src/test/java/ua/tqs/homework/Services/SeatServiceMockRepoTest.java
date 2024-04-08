@@ -16,10 +16,11 @@ import ua.tqs.homework.repository.StopRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class SeatServiceMockRepoTest {
+class SeatServiceMockRepoTest {
 
     @Mock
     RouteRepository routeRepository;
@@ -99,13 +100,17 @@ public class SeatServiceMockRepoTest {
     void testGetAllSeats() {
         when(seatRepository.findAll()).thenReturn(List.of(seat1, seat2, seat3, seat4, seat5, seat6, seat8, seat9, seat10));
         List<Seat> allSeats = seatService.getAllSeats();
-        assert(allSeats.size() == 9);
+        assertEquals(9,allSeats.size());
+        assertEquals(allSeats.get(0), seat1);
+        assertEquals(allSeats.get(1), seat2);
     }
 
     @Test
     void testGetSeatDetails() {
+
         when(seatRepository.findById(1L)).thenReturn(java.util.Optional.of(seat1));
-        assert(seatService.getSeatDetails(1L).get().equals(seat1));
+        assertEquals( "1A",seatService.getSeatDetails(1L).get().getSeatIdentifier());
+        assertEquals(seatService.getSeatDetails(1L).get().getRoute(), route1);
     }
 
     @Test
@@ -113,7 +118,8 @@ public class SeatServiceMockRepoTest {
         Seat seat = new Seat("1D", 1, List.of(false, false, false, false), route1);
         seatService.saveSeat(seat);
         when(seatRepository.findById(11L)).thenReturn(java.util.Optional.of(seat));
-        assert(seatService.getSeatDetails(11L).get().equals(seat));
+        assertEquals( "1D",seatService.getSeatDetails(11L).get().getSeatIdentifier());
+        assertEquals(seatService.getSeatDetails(11L).get().getRoute(), route1);
     }
 
 
