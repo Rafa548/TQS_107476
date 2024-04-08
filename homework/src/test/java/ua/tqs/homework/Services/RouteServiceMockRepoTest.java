@@ -1,4 +1,4 @@
-package com.tqs108636.busservicebackend.service;
+package ua.tqs.homework.Services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

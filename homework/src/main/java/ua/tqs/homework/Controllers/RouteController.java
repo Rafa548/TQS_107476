@@ -55,10 +55,13 @@ public class RouteController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Route> getRouteDetails(@PathVariable Long id) {
-        if (routeService.getRouteDetails(id).isEmpty()){
+        Optional<Route> optionalRoute = routeService.getRouteDetails(id);
+
+        if (optionalRoute.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(routeService.getRouteDetails(id).get());
+
+        return ResponseEntity.ok(optionalRoute.get());
     }
 
 
