@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -211,14 +212,17 @@ class ReservationServiceMockRepoTest {
     @Test
     void testGetReservationDetails() {
         when(reservationRepository.findById(1L)).thenReturn(Optional.of(reservation1));
-        assert(reservationService.getReservationDetails(1L).get().equals(reservation1));
+        assertEquals(reservationService.getReservationDetails(1L).get().getClientName(), "John Doe");
+        assertEquals(reservationService.getReservationDetails(1L).get().getRoute(), route1);
     }
 
     @Test
     void testGetAllReservations() {
         when(reservationRepository.findAll()).thenReturn(List.of(reservation1, reservation2));
         List<Reservation> allReservations = reservationService.getAllReservations();
-        assert(allReservations.size() == 2);
+        assertEquals(2, allReservations.size());
+        assertEquals(allReservations.get(0), reservation1);
+        assertEquals(allReservations.get(1), reservation2);
     }
 
 

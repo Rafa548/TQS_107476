@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 
 @SpringBootTest
-public class BusApplicationTests {
+class BusApplicationTests {
     @Test
     void contextLoads() {
         assertDoesNotThrow(() -> {});

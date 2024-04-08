@@ -24,7 +24,7 @@ import ua.tqs.homework.Entities.Reservation;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
-public class ReservationControllerIT {
+class ReservationControllerIT {
 
     @LocalServerPort
     int randomServerPort;

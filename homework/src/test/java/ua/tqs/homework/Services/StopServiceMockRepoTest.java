@@ -85,7 +85,7 @@ class StopServiceMockRepoTest {
 
         List<Stop> allStops = stopService.getAllStops();
 
-        assertEquals(allStops.size(), 5);
+        assertEquals(5,allStops.size());
         assertEquals(allStops.get(0), stopPorto);
         assertEquals(allStops.get(1), stopLisboa);
         assertEquals(allStops.get(2), stopBraga);
