@@ -55,8 +55,6 @@ class RouteServiceMockRepoTest {
 
     @BeforeEach
     void setup() {
-        // route 1: Porto -> Lisboa -> Braga -> Coimbra
-        // route 2: Braga -> Porto
 
         route1 = new Route();
         route2 = new Route();
@@ -69,7 +67,7 @@ class RouteServiceMockRepoTest {
         stopFaro = new Stop("Faro","12", "14");
 
         route1.setStops(List.of(stopPorto, stopLisboa, stopBraga, stopCoimbra));
-        route2.setStops(List.of(stopBraga, stopPorto));
+        route2.setStops(List.of(stopPorto, stopLisboa));
         route3.setStops(List.of(stopPorto, stopLisboa, stopBraga, stopCoimbra, stopFaro));
 
         List<Boolean> isBooked = new ArrayList<>();
@@ -95,6 +93,15 @@ class RouteServiceMockRepoTest {
         seat8 = new Seat("2B",1,isBooked, route2);
         seat9 = new Seat("2C",1,isBooked, route2);
         seat10 = new Seat("2D",1,isBooked, route2);
+
+
+        route1.setSeats(List.of(seat1, seat2, seat3));
+        route2.setSeats(List.of());
+        route3.setSeats(List.of(seat4, seat5, seat6));
+
+        routeRepository.save(route1);
+        routeRepository.save(route2);
+        routeRepository.save(route3);
     }
 
     @Test
@@ -166,4 +173,107 @@ class RouteServiceMockRepoTest {
 
         verify(routeRepository, times(1)).findById(1000L);
     }
+
+    @Test
+    void testDeleteRouteById() {
+        routeService.deleteRoute(1L);
+
+        verify(routeRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void testDeleteAllRoutes() {
+        routeService.deleteAllRoutes();
+
+        verify(routeRepository, times(1)).deleteAll();
+    }
+
+    @Test
+    void testGetRouteById() {
+        when(routeRepository.findById(1L)).thenReturn(Optional.of(route1));
+
+        Route foundRoute = routeService.getRouteById(1L);
+
+        assertEquals(route1, foundRoute);
+
+        verify(routeRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testSearchRoutesDestination() {
+        when(stopRepository.findByCityName(stopCoimbra.getCityName())).thenReturn(stopCoimbra);
+        when(routeRepository.findAll()).thenReturn(Arrays.asList(route1, route2, route3));
+
+        List<Route> routesFromPorto = routeService.searchRoutesDestination(stopCoimbra.getCityName());
+
+        assertEquals(2, routesFromPorto.size());
+        assertTrue(routesFromPorto.contains(route1));
+        assertTrue(routesFromPorto.contains(route3));
+
+        verify(routeRepository, times(1)).findAll();
+        verify(stopRepository, times(1)).findByCityName(stopCoimbra.getCityName());
+    }
+
+    @Test
+    void testSearchRoutesOrigin() {
+        when(stopRepository.findByCityName(stopPorto.getCityName())).thenReturn(stopPorto);
+        when(routeRepository.findAll()).thenReturn(Arrays.asList(route1, route2, route3));
+
+        List<Route> routesFromPorto = routeService.searchRoutesOrigin(stopPorto.getCityName());
+
+        assertEquals(3, routesFromPorto.size());
+        assertTrue(routesFromPorto.contains(route1));
+        assertTrue(routesFromPorto.contains(route3));
+
+        verify(routeRepository, times(1)).findAll();
+        verify(stopRepository, times(1)).findByCityName(stopPorto.getCityName());
+    }
+
+    @Test
+    void testGetRouteSeats() {
+        when(routeRepository.findById(1L)).thenReturn(Optional.of(route1));
+
+        List<Seat> routeSeats = routeService.getRouteSeats(1L);
+
+        assertEquals(3, routeSeats.size());
+        assertTrue(routeSeats.contains(seat1));
+        assertTrue(routeSeats.contains(seat2));
+        assertTrue(routeSeats.contains(seat3));
+
+        verify(routeRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testGetRouteSeatsInvalidRoute() {
+        when(routeRepository.findById(1000L)).thenReturn(Optional.empty());
+
+        List<Seat> routeSeats = routeService.getRouteSeats(1000L);
+
+        assertTrue(routeSeats.isEmpty());
+
+        verify(routeRepository, times(1)).findById(1000L);
+    }
+
+    @Test
+    void testGetRouteSeatsEmptyRoute() {
+        when(routeRepository.findById(2L)).thenReturn(Optional.of(route2));
+
+        List<Seat> routeSeats = routeService.getRouteSeats(2L);
+
+        assertTrue(routeSeats.isEmpty());
+
+        verify(routeRepository, times(1)).findById(2L);
+    }
+
+    @Test
+    void testSaveRoute() {
+        Route route4 = new Route();
+        route4.setStops(List.of(stopPorto, stopLisboa, stopBraga, stopCoimbra, stopFaro));
+
+        routeService.saveRoute(route4);
+
+        verify(routeRepository, times(1)).save(route4);
+    }
+
+
 }

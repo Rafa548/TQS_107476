@@ -52,7 +52,6 @@ class ReservationServiceMockRepoTest {
 
     @BeforeEach
     void setup() {
-        // trip1 - bus is not full
 
         route1 = new Route();
         route2 = new Route();
@@ -207,6 +206,19 @@ class ReservationServiceMockRepoTest {
         Optional<Reservation> optionalReservation = reservationService.saveReservation(reservation2);
 
         assertTrue(optionalReservation.isPresent());
+    }
+
+    @Test
+    void testGetReservationDetails() {
+        when(reservationRepository.findById(1L)).thenReturn(Optional.of(reservation1));
+        assert(reservationService.getReservationDetails(1L).get().equals(reservation1));
+    }
+
+    @Test
+    void testGetAllReservations() {
+        when(reservationRepository.findAll()).thenReturn(List.of(reservation1, reservation2));
+        List<Reservation> allReservations = reservationService.getAllReservations();
+        assert(allReservations.size() == 2);
     }
 
 
