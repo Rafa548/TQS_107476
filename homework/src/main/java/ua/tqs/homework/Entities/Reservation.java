@@ -11,7 +11,6 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-@Table(name = "reservation")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -50,4 +49,9 @@ public class Reservation {
     @Column(unique = true)
     private String authToken;
 
+    public Reservation(String clientName, Route route, List<Seat> seats) {
+        this.clientName = clientName;
+        this.route = route;
+        this.seats = seats;
+    }
 }

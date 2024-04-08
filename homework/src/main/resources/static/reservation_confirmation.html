@@ -32,7 +32,7 @@
 
 <form id="reservationForm">
     <label for="clientName">Client Name:</label>
-    <input type="text" id="clientName" name="clientName"><br><br>
+    <input type="text" id="clientName" name="clientName"><br>
 
     <label for="numberOfSeats">Number of Seats:</label>
     <select id="numberOfSeats" name="numberOfSeats">
@@ -42,11 +42,11 @@
         <option value="3">3</option>
         <option value="4">4</option>
         <option value="5">5</option>
-    </select><br><br>
+    </select><br>
 
     <div id="seatSelection">
         <!-- Seat selection options will be dynamically populated here -->
-    </div>
+    </div><br>
 
     <p>Total Price: <span id="totalPriceDisplay">$0.00</span></p>
 
@@ -142,14 +142,9 @@
             const $select = $(this);
             fetchRoute(routeId)
                 .then(function (route) {
-                    console.log(route);
                     const seatID = parseInt($select.val());
-                    console.log(seatID)
                     const seatIndex = route.seats.findIndex(s => s.id === seatID);
-                    console.log(seatIndex);
-                    console.log(route.seats[seatIndex])
                     const price = route.seats[seatIndex].priceMultiplier;
-                    console.log(price)
                     totalPrice += price * 10;
                     $('#totalPriceDisplay').text('$' + totalPrice);
                 })
@@ -172,8 +167,6 @@
         const formData = $(this).serializeArray();
         const clientName = formData.find(field => field.name === 'clientName').value;
         const numberOfSeats = formData.find(field => field.name === 'numberOfSeats').value;
-
-
 
         const selectedSeats = [];
         for (let i = 0; i < numberOfSeats; i++) {

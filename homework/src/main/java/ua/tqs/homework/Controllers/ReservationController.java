@@ -12,6 +12,7 @@ import ua.tqs.homework.Services.RouteService;
 import ua.tqs.homework.Services.SeatService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -41,10 +42,7 @@ public class ReservationController {
             if (seatInDb == null) {
                 return ResponseEntity.badRequest().build();
             }
-            //System.out.println(seatInDb.getIsBooked());
-            //System.out.println(seat.getIsBooked());
             seatInDb.setIsBooked(seat.getIsBooked());
-            //System.out.println(seatInDb.getIsBooked());
             seatService.saveSeat(seatInDb);
         }
         Route route = reservation.getRoute();
@@ -55,7 +53,10 @@ public class ReservationController {
         reservation.setRoute(routeInDb);
         reservation.setAuthToken(authToken);
 
-        reservationService.saveReservation(reservation);
+        Optional<Reservation> res =  reservationService.saveReservation(reservation);
+        if (res.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
         return new ResponseEntity<>(reservation, HttpStatus.CREATED);
     }
 

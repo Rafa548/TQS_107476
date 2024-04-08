@@ -1,6 +1,7 @@
 package ua.tqs.homework;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import ua.tqs.homework.Entities.Route;
@@ -15,16 +16,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootApplication
+
 public class BusApplication {
+
 
     private ReservationService reservationService;
     private RouteService routeService;
     private SeatService seatService;
-
     private StopService stopService;
 
 
 
+    @Autowired
     public BusApplication(ReservationService reservationService, RouteService routeService, SeatService seatService, StopService stopService) {
         this.reservationService = reservationService;
         this.routeService = routeService;
@@ -58,7 +61,6 @@ public class BusApplication {
         routeService.saveRoute(route1);
 
 
-        List<Seat> seats = new ArrayList<>();
         List<Boolean> isBooked = new ArrayList<>();
         List<Boolean> isBookedTrue = new ArrayList<>();
 
@@ -81,12 +83,10 @@ public class BusApplication {
                 if (letter.equals("A")) {
                     Seat seat = new Seat(i + letter, 2, isBookedTrue, route1);
                     seatService.saveSeat(seat);
-                    seats.add(seat);
                 }
                 else {
                     Seat seat = new Seat(i + letter, 1, isBooked, route1);
                     seatService.saveSeat(seat);
-                    seats.add(seat);
                 }
             }
         }

@@ -12,7 +12,6 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-@Table(name = "route")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -39,7 +38,7 @@ public class Route {
     @JsonIgnoreProperties({"route","stops"})
     private List<Seat> seats;
 
-    public Route( List<Seat> seats) {
-        this.seats = seats;
+    public Route(List<Stop> stops) {
+        this.stops = stops;
     }
 }

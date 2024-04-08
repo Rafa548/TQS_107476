@@ -1,10 +1,11 @@
 package ua.tqs.homework.Services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ua.tqs.homework.Entities.Route;
 import ua.tqs.homework.Entities.Stop;
-import ua.tqs.homework.Repositories.RouteRepository;
-import ua.tqs.homework.Repositories.StopRepository;
+import ua.tqs.homework.repository.RouteRepository;
+import ua.tqs.homework.repository.StopRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ public class RouteService {
     private RouteRepository routeRepository;
     private StopRepository stopRepository;
 
+    @Autowired
     public RouteService(RouteRepository routeRepository, StopRepository stopRepository) {
         this.routeRepository = routeRepository;
         this.stopRepository = stopRepository;
@@ -46,21 +48,16 @@ public class RouteService {
     }
 
     public List<Route> searchRoutes(String origin, String destination) {
-        //get the origin stop
         Stop originStop = stopRepository.findByCityName(origin);
         Stop destinationStop = stopRepository.findByCityName(destination);
-        //get all routes
         List<Route> routes = routeRepository.findAll();
-        //create a list to store the routes that have the origin and destination
         List<Route> routesFound = new ArrayList<>();
-        //iterate over all routes
         for (Route route : routes) {
-            //get the stops of the route
             List<Stop> stops = route.getStops();
-            //iterate over all stops
             for (int i = 0; i < stops.size(); i++) {
                 //if the stop is the origin
                 if (stops.get(i).equals(originStop)) {
+
                     //iterate over all stops
                     for (int j = i + 1; j < stops.size(); j++) {
                         //if the stop is the destination

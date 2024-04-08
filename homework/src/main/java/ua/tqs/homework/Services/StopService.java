@@ -2,9 +2,8 @@ package ua.tqs.homework.Services;
 
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RestController;
 import ua.tqs.homework.Entities.Stop;
-import ua.tqs.homework.Repositories.StopRepository;
+import ua.tqs.homework.repository.StopRepository;
 
 @Service
 public class StopService {

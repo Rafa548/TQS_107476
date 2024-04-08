@@ -10,7 +10,6 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-@Table(name = "seat")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -44,9 +43,4 @@ public class Seat {
     @JsonIgnoreProperties({"seats","stops","reservations"})
     private Route route;
 
-
-    //probably desnecessario
-    @ManyToMany(mappedBy = "leavingSeats")
-    @JsonIgnoreProperties("leavingSeats")
-    private List<Stop> stops;
 }

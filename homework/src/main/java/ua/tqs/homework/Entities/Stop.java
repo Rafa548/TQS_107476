@@ -12,7 +12,6 @@ import java.util.List;
 
 
 @Entity
-@Table(name = "stop")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -23,21 +22,12 @@ public class Stop {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @Column(unique = true)
     private String cityName;
 
     private String arrivalTime;
 
     private String departureTime;
-
-    //probably desnecessario
-    @ManyToMany(cascade = CascadeType.PERSIST)
-    @JoinTable(name = "seat_stop",
-            joinColumns = @JoinColumn(name = "seat_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "stop_id",
-                    referencedColumnName = "id"))
-    private List<Seat> leavingSeats;
 
     @ManyToMany(mappedBy = "stops")
     @JsonIgnoreProperties({"stops","reservations","seats"})

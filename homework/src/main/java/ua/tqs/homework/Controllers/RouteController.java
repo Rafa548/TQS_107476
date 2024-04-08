@@ -27,7 +27,7 @@ public class RouteController {
     }
 
 
-    @GetMapping("/search/{origin}/{destination}")
+        @GetMapping("/search/{origin}/{destination}")
     public ResponseEntity<?> searchRoutes(@PathVariable String origin, @PathVariable String destination) {
         return ResponseEntity.ok(routeService.searchRoutes(origin, destination));
     }

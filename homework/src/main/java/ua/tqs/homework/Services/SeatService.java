@@ -3,7 +3,7 @@ package ua.tqs.homework.Services;
 
 import org.springframework.stereotype.Service;
 import ua.tqs.homework.Entities.Seat;
-import ua.tqs.homework.Repositories.SeatRepository;
+import ua.tqs.homework.repository.SeatRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +18,12 @@ public class SeatService {
     }
 
     public void saveSeat(Seat seat) {
+        System.out.println("Saving seat with id: " + seat.getId());
+        System.out.println("Seat number: " + seat.getSeatIdentifier());
+        System.out.println("Is booked: " + seat.getIsBooked());
+        System.out.println("Route: " + seat.getRoute());
+        System.out.println("Reservation: " + seat.getReservations());
+        System.out.println("Seat id: " + seat.getId());
         seatRepository.save(seat);
     }
 
