@@ -27,7 +27,7 @@ public class RouteController {
     }
 
 
-        @GetMapping("/search/{origin}/{destination}")
+    @GetMapping("/search/{origin}/{destination}")
     public ResponseEntity<?> searchRoutes(@PathVariable String origin, @PathVariable String destination) {
         return ResponseEntity.ok(routeService.searchRoutes(origin, destination));
     }
@@ -50,7 +50,10 @@ public class RouteController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getRouteDetails(@PathVariable Long id) {
-        return ResponseEntity.ok(routeService.getRouteDetails(id));
+        if (routeService.getRouteDetails(id).isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(routeService.getRouteDetails(id).get());
     }
 
 

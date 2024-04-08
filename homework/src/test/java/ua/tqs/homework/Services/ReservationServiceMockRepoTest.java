@@ -22,6 +22,7 @@ import ua.tqs.homework.repository.SeatRepository;
 import ua.tqs.homework.repository.StopRepository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -90,18 +91,44 @@ class ReservationServiceMockRepoTest {
             System.out.println("exception: " + e);
         }
 
+        List<Boolean> isBookedR3 = new ArrayList<>();
+        List<Boolean> isBookedAllFalseR31 = new ArrayList<>();
+        List<Boolean> isBookedAllFalseR32 = new ArrayList<>();
+        List<Boolean> isBookedAllFalseR33 = new ArrayList<>();
+
+        try {
+            int n_stops = route3.getStops().size()-1; //beginning never has a stop
+
+            for (int i = 0; i < n_stops; i++) {
+                isBookedR3.add(false);
+                isBookedAllFalseR31.add(false);
+                isBookedAllFalseR32.add(false);
+                isBookedAllFalseR33.add(false);
+            }
+            isBookedR3.set(1, true);
+        } catch (Exception e) {
+            System.out.println("exception: " + e);
+        }
+
+
         seat1 = new Seat("1A",2,isBookedTrue, route1);
+        seat1.setId(1L);
         seat2 = new Seat("1B",1,isBooked, route1);
+        seat2.setId(2L);
         seat3 = new Seat("1C",1,isBooked, route1);
-        seat4 = new Seat("1A",2,isBooked, route3);
-        seat4.setId(4L);
-        seat5 = new Seat("1B",1,isBooked, route3);
-        seat5.setId(5L);
-        seat6 = new Seat("1C",1,isBooked, route3);
-        seat6.setId(6L);
-        seat8 = new Seat("2B",1,isBooked, route2);
-        seat9 = new Seat("2C",1,isBooked, route2);
-        seat10 = new Seat("2D",1,isBooked, route2);
+        seat3.setId(3L);
+        seat4 = new Seat("1D",1,isBookedR3, route3);
+        seat4.setId(8L);
+        seat5 = new Seat("2A",1,isBookedR3, route3);
+        seat5.setId(9L);
+        seat6 = new Seat("2B",1,isBookedR3, route3);
+        seat6.setId(10L);
+        seat8 = new Seat("2B",1,isBookedAllFalseR31, route3);
+        seat8.setId(8L);
+        seat9 = new Seat("2C",1,isBookedAllFalseR32, route3);
+        seat9.setId(9L);
+        seat10 = new Seat("2D",1,isBookedAllFalseR33, route3);
+        seat10.setId(10L);
 
         reservation1 = new Reservation("John Doe", route1, List.of(seat1));
         reservation1.setArrivalStop(stopLisboa);
@@ -109,7 +136,7 @@ class ReservationServiceMockRepoTest {
         reservation1.setId(1L);
         reservation1.setAuthToken("1234");
 
-        reservation2 = new Reservation("Jane Doe", route3, List.of(seat4, seat5, seat6));
+        reservation2 = new Reservation("Jane Doe", route3, List.of(seat8, seat9, seat10));
         reservation2.setArrivalStop(stopLisboa);
         reservation2.setDepartureStop(stopPorto);
         reservation2.setId(2L);
@@ -139,9 +166,10 @@ class ReservationServiceMockRepoTest {
 
     @Test
     void testCreateReservation_ForNonExistingSeat() {
+        Optional<List<Seat>> expected = Optional.of(Collections.emptyList());
         when(routeRepository.findById(anyLong())).thenReturn(Optional.of(route1));
         when(stopRepository.findById(anyLong())).thenReturn(Optional.of(stopLisboa));
-        when(seatRepository.findByRouteId(anyLong())).thenReturn(Optional.empty());
+        when(seatRepository.findByRouteId(anyLong())).thenReturn(expected);
 
         Optional<Reservation> optionalReservation = reservationService.saveReservation(reservation1);
 
@@ -165,8 +193,10 @@ class ReservationServiceMockRepoTest {
     void testCreateReservation_ForValidReservation() {
         when(routeRepository.findById(anyLong())).thenReturn(Optional.of(route3));
         when(stopRepository.findById(anyLong())).thenReturn(Optional.of(stopLisboa));
-        when(seatRepository.findByRouteId(anyLong())).thenReturn(Optional.of(List.of(seat4, seat5, seat6)));
-        when(seatRepository.findById(anyLong())).thenReturn(Optional.of(seat4), Optional.of(seat5), Optional.of(seat6));
+        when(seatRepository.findByRouteId(anyLong())).thenReturn(Optional.of(List.of(seat8, seat9, seat10)));
+        when(seatRepository.findById(anyLong())).thenReturn(Optional.of(seat8), Optional.of(seat9), Optional.of(seat10));
+
+        //when(reservationRepository.save(any())).thenReturn(reservation2);
 
         Optional<Reservation> optionalReservation = reservationService.saveReservation(reservation2);
 

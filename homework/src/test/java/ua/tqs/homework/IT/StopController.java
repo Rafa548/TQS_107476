@@ -1,15 +1,9 @@
 package ua.tqs.homework.IT;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
@@ -17,12 +11,16 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
-import ua.tqs.homework.Entities.Reservation;
+import ua.tqs.homework.Entities.Route;
+import ua.tqs.homework.Entities.Stop;
 
+import java.util.List;
 
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
-public class ReservationControllerIT {
+public class StopController {
 
     @LocalServerPort
     int randomServerPort;
@@ -30,18 +28,18 @@ public class ReservationControllerIT {
     @Autowired
     TestRestTemplate testRestTemplate;
 
-
     @Test
-    void testGetAllLocations() {
-        ResponseEntity<List<Reservation>> response = testRestTemplate.exchange(
-                "/reservation",
+    void testGetAllStops() {
+        ResponseEntity<List<Stop>> response = testRestTemplate.exchange(
+                "/stops",
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<List<Reservation>>() {
+                new ParameterizedTypeReference<List<Stop>>() {
                 });
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        List<Reservation> locationResponse = response.getBody();
-        assertEquals(2, locationResponse.size());
+        List<Stop> locationResponse = response.getBody();
+        assertEquals(5, locationResponse.size());
     }
+
 }

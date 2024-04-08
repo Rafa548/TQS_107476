@@ -46,7 +46,10 @@ public class ReservationService {
         //System.out.println("Departure stop: " + reservation.getDepartureStop().getId());
         //System.out.println("AuthToken: " + reservation.getAuthToken());
 
+
         Optional<Route> route = routeRepository.findById(reservation.getRoute().getId());
+
+        //r3
 
         if (route.isEmpty()) {
             logger.error("Route not found {}", reservation.getRoute().getId());
@@ -56,6 +59,7 @@ public class ReservationService {
 
         //get the arrival stop
         Optional<Stop> arrivalStop = stopRepository.findById(reservation.getArrivalStop().getId());
+        //StopLisboa
 
         if (arrivalStop.isEmpty()) {
             logger.error("Arrival stop not found {}", reservation.getArrivalStop().getId());
@@ -68,15 +72,16 @@ public class ReservationService {
         }
         
         Optional<List<Seat>> seats = seatRepository.findByRouteId(reservation.getRoute().getId());
+        logger.info("Seats found for route {} {}", reservation.getRoute().getId(), seats.get().size());
+        //SEATS ALL GOOD
 
         if (seats.isEmpty()) {
             logger.error("Seats not found for route {}", reservation.getRoute().getId());
             return Optional.empty();
         }
 
-        logger.info("Seats found for route {} {}", reservation.getRoute().getId(), seats.get().size());
-
         //get the reservation seats
+        //System.out.println("Seats: " + reservation.getSeats());
         for (Seat seat : reservation.getSeats()) {
             Optional<Seat> seatOptional = seatRepository.findById(seat.getId());
             if (seatOptional.isEmpty()) {
@@ -86,12 +91,29 @@ public class ReservationService {
         }
 
         //check if the seats are available
-        for (Seat seat : reservation.getSeats()) {
-            if (seat.getIsBooked().get(route.get().getStops().indexOf(arrivalStop.get())-1)) {
-                logger.error("Seat already booked {}", seat);
-                return Optional.empty();
+        //System.out.println("Seats: " + (route.get().getStops().indexOf(arrivalStop.get())-1));
+        for (Seat routeSeat : seats.get()) {
+            logger.info("Checking seat {}", routeSeat.getId());
+            if (reservation.getSeats().contains(routeSeat)) {
+                logger.info("Seat found {}", routeSeat.getIsBooked());
+                int stopIndex = route.get().getStops().indexOf(arrivalStop.get())-1;
+                if (stopIndex >= 0 && stopIndex < routeSeat.getIsBooked().size()) {
+                    boolean alreadyBooked = routeSeat.getIsBooked().get(stopIndex);
+                    if (alreadyBooked) {
+                        logger.error("Seat already booked at stop {}", stopIndex);
+                        return Optional.empty(); // Booking failed if already booked
+                    } else {
+                        routeSeat.getIsBooked().set(stopIndex, true);
+                        logger.info("Booking seat at stop {}", stopIndex);
+                    }
+                    seatRepository.save(routeSeat);
+                    logger.info("Seat booked {}", routeSeat.getIsBooked());
+                } else {
+                    logger.warn("Invalid stop index: {}", stopIndex);
+                }
             }
         }
+
 
         System.out.println("Seats: " + seats.get());
 

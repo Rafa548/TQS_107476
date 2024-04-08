@@ -35,16 +35,6 @@ public class ReservationController {
     @PostMapping()
     public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservation) {
         String authToken = UUID.randomUUID().toString();
-        List<Seat> seats = reservation.getSeats();
-
-        for (Seat seat : seats) {
-            Seat seatInDb = seatService.getSeatDetails(seat.getId()).orElse(null);
-            if (seatInDb == null) {
-                return ResponseEntity.badRequest().build();
-            }
-            seatInDb.setIsBooked(seat.getIsBooked());
-            seatService.saveSeat(seatInDb);
-        }
         Route route = reservation.getRoute();
         Route routeInDb = routeService.getRouteDetails(route.getId()).orElse(null);
         if (routeInDb == null) {
