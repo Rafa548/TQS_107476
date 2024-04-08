@@ -66,7 +66,7 @@ class RouteControllerMockServiceTest {
         mockMvc.perform(get("/routes/1")).andExpectAll(status().isOk(),
                 jsonPath("$.id").value(route1.getId()));
 
-        verify(routeService, times(2)).getRouteDetails(1L);
+        verify(routeService, times(1)).getRouteDetails(1L);
     }
 
     @Test
