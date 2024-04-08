@@ -36,10 +36,20 @@ public class ReservationController {
     public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservation) {
         String authToken = UUID.randomUUID().toString();
         Route route = reservation.getRoute();
+        List<Seat> seats = reservation.getSeats();
         Route routeInDb = routeService.getRouteDetails(route.getId()).orElse(null);
         if (routeInDb == null) {
             return ResponseEntity.badRequest().build();
         }
+        for (Seat seat : seats) {
+            Seat seatInDb = seatService.getSeatDetails(seat.getId()).orElse(null);
+            if (seatInDb == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            seatInDb.setIsBooked(seat.getIsBooked());
+            seatService.saveSeat(seatInDb);
+        }
+
         reservation.setRoute(routeInDb);
         reservation.setAuthToken(authToken);
 

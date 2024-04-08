@@ -3,11 +3,13 @@ package ua.tqs.homework.Services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ua.tqs.homework.Entities.Route;
+import ua.tqs.homework.Entities.Seat;
 import ua.tqs.homework.Entities.Stop;
 import ua.tqs.homework.repository.RouteRepository;
 import ua.tqs.homework.repository.StopRepository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,7 +74,7 @@ public class RouteService {
         return routesFound;
     }
 
-    public Object searchRoutesDestination(String destination) {
+    public List<Route> searchRoutesDestination(String destination) {
         Stop destinationStop = stopRepository.findByCityName(destination);
         List<Route> routes = routeRepository.findAll();
         List<Route> routesFound = new ArrayList<>();
@@ -87,7 +89,7 @@ public class RouteService {
         return routesFound;
     }
 
-    public Object searchRoutesOrigin(String origin) {
+    public List<Route> searchRoutesOrigin(String origin) {
         Stop originStop = stopRepository.findByCityName(origin);
         List<Route> routes = routeRepository.findAll();
         List<Route> routesFound = new ArrayList<>();
@@ -102,10 +104,10 @@ public class RouteService {
         return routesFound;
     }
 
-    public Object getRouteSeats(Long id) {
+    public List<Seat> getRouteSeats(Long id) {
         Route route = routeRepository.findById(id).orElse(null);
         if (route == null) {
-            return "Route not found";
+            return Collections.emptyList();
         }
         return route.getSeats();
     }

@@ -11,7 +11,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
-import ua.tqs.homework.Entities.Route;
 import ua.tqs.homework.Entities.Stop;
 
 import java.util.List;
@@ -20,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
-public class StopController {
+class StopControllerIT {
 
     @LocalServerPort
     int randomServerPort;

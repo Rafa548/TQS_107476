@@ -130,13 +130,19 @@ class ReservationServiceMockRepoTest {
         seat10 = new Seat("2D",1,isBookedAllFalseR33, route3);
         seat10.setId(10L);
 
-        reservation1 = new Reservation("John Doe", route1, List.of(seat1));
+        reservation1 = new Reservation();
+        reservation1.setClientName("John Doe");
+        reservation1.setRoute(route1);
+        reservation1.setSeats(List.of(seat1));
         reservation1.setArrivalStop(stopLisboa);
         reservation1.setDepartureStop(stopPorto);
         reservation1.setId(1L);
         reservation1.setAuthToken("1234");
 
-        reservation2 = new Reservation("Jane Doe", route3, List.of(seat8, seat9, seat10));
+        reservation2 = new Reservation();
+        reservation2.setClientName("Jane Doe");
+        reservation2.setRoute(route3);
+        reservation2.setSeats(List.of(seat5, seat6, seat4));
         reservation2.setArrivalStop(stopLisboa);
         reservation2.setDepartureStop(stopPorto);
         reservation2.setId(2L);
@@ -194,7 +200,7 @@ class ReservationServiceMockRepoTest {
         when(routeRepository.findById(anyLong())).thenReturn(Optional.of(route3));
         when(stopRepository.findById(anyLong())).thenReturn(Optional.of(stopLisboa));
         when(seatRepository.findByRouteId(anyLong())).thenReturn(Optional.of(List.of(seat8, seat9, seat10)));
-        when(seatRepository.findById(anyLong())).thenReturn(Optional.of(seat8), Optional.of(seat9), Optional.of(seat10));
+        when(seatRepository.findById(anyLong())).thenReturn(Optional.of(seat5), Optional.of(seat6), Optional.of(seat4));
 
         //when(reservationRepository.save(any())).thenReturn(reservation2);
 

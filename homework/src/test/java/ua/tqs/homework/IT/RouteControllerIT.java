@@ -40,14 +40,13 @@ import ua.tqs.homework.Entities.Route;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
-public class RouteControllerIT {
+class RouteControllerIT {
 
     @LocalServerPort
     int randomServerPort;
 
     @Autowired
     TestRestTemplate testRestTemplate;
-
 
     @Test
     void testGetAllRoutes() {

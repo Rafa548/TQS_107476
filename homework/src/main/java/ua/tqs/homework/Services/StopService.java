@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import ua.tqs.homework.Entities.Stop;
 import ua.tqs.homework.repository.StopRepository;
 
+import java.util.List;
+
 @Service
 public class StopService {
 
@@ -18,7 +20,7 @@ public class StopService {
         stopRepository.save(stop);
     }
 
-    public Iterable<Stop> getAllStops() {
+    public List<Stop> getAllStops() {
         return stopRepository.findAll();
     }
 

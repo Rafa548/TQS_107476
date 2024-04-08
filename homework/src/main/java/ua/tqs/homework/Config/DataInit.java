@@ -5,13 +5,10 @@ import ua.tqs.homework.Services.ReservationService;
 import ua.tqs.homework.Services.RouteService;
 import ua.tqs.homework.Services.SeatService;
 import ua.tqs.homework.Services.StopService;
-import ua.tqs.homework.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
@@ -34,7 +31,7 @@ public class DataInit {
     }
 
     @PostConstruct
-    public void initialize() throws Exception {
+    public void initialize() {
 
         if (!routeService.getAllRoutes().isEmpty()) {
             return;
@@ -71,9 +68,9 @@ public class DataInit {
         List<Boolean> isBookedTrue = new ArrayList<>();
 
         try {
-            int n_stops = route1.getStops().size()-1; //beginning never has a stop
+            int nStops = route1.getStops().size()-1; //beginning never has a stop
 
-            for (int i = 0; i < n_stops; i++) {
+            for (int i = 0; i < nStops; i++) {
                 isBooked.add(false);
                 isBookedTrue.add(true);
             }
@@ -105,14 +102,6 @@ public class DataInit {
             }
         }
 
-        Reservation reservation1 = new Reservation("John Doe", route1, List.of(seatService.getAllSeats().get(0)));
-        String authToken = UUID.randomUUID().toString();
-        reservation1.setAuthToken(authToken);
-        reservation1.setDepartureStop(stop1);
-        reservation1.setArrivalStop(stop3);
-        reservationService.saveReservation(reservation1);
-        Reservation reservation2 = new Reservation("Jane Doe", route1, List.of(seatService.getSeatDetails(2L).get()));
-        reservationService.saveReservation(reservation2);
     }
 
 

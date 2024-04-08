@@ -70,7 +70,7 @@ public class ReservationService {
             logger.error("Arrival stop not in route {}", arrivalStop.get());
             return Optional.empty();
         }
-        
+
         Optional<List<Seat>> seats = seatRepository.findByRouteId(reservation.getRoute().getId());
         logger.info("Seats found for route {} {}", reservation.getRoute().getId(), seats.get().size());
         //SEATS ALL GOOD
@@ -90,35 +90,10 @@ public class ReservationService {
             }
         }
 
-        //check if the seats are available
-        //System.out.println("Seats: " + (route.get().getStops().indexOf(arrivalStop.get())-1));
-        for (Seat routeSeat : seats.get()) {
-            logger.info("Checking seat {}", routeSeat.getId());
-            if (reservation.getSeats().contains(routeSeat)) {
-                logger.info("Seat found {}", routeSeat.getIsBooked());
-                int stopIndex = route.get().getStops().indexOf(arrivalStop.get())-1;
-                if (stopIndex >= 0 && stopIndex < routeSeat.getIsBooked().size()) {
-                    boolean alreadyBooked = routeSeat.getIsBooked().get(stopIndex);
-                    if (alreadyBooked) {
-                        logger.error("Seat already booked at stop {}", stopIndex);
-                        return Optional.empty(); // Booking failed if already booked
-                    } else {
-                        routeSeat.getIsBooked().set(stopIndex, true);
-                        logger.info("Booking seat at stop {}", stopIndex);
-                    }
-                    seatRepository.save(routeSeat);
-                    logger.info("Seat booked {}", routeSeat.getIsBooked());
-                } else {
-                    logger.warn("Invalid stop index: {}", stopIndex);
-                }
-            }
-        }
-
-
         System.out.println("Seats: " + seats.get());
 
         Reservation res = reservationRepository.save(reservation);
-        System.out.println("Reservation: " + res);
+        //System.out.println("Reservation: " + res);
         logger.info("Reservation saved with id {}", res.getId());
         return Optional.of(res);
     }
