@@ -13,26 +13,21 @@
             $.ajax({
                 type: 'GET',
                 url: '/reservation/' + id + '/' + token,
-
                 success: function (data) {
-                    $('#dataInfo').empty();
-                    $('#dataInfo').append('<h3>Data Retrieved:</h3>');
-                    $('#dataInfo').append('<p>ID: ' + data.id + '</p>');
-                    $('#dataInfo').append('<p>Name: ' + data.clientName + '</p>');
-                    $('#dataInfo').append('<p>From: ' + data.departureStop.cityName + '</p>');
-                    $('#dataInfo').append('<p>To: ' + data.arrivalStop.cityName + '</p>');
-                    $('#dataInfo').append('<p>Departure Time: ' + data.departureStop.departureTime + '</p>');
-                    $('#dataInfo').append('<p>Arrival Time: ' + data.arrivalStop.arrivalTime + '</p>');
-                    // Add more fields as needed
-                    $('#dataInfo').append('<p><a href="#" onclick="cancelReservation(' + data.id + ');">Cancel Reservation</a></p>');
+                    $('#dataInfo').empty().append('<h3>Data Retrieved:</h3>',
+                        '<p>ID: ' + data.id + '</p>',
+                        '<p>Name: ' + data.clientName + '</p>',
+                        '<p>From: ' + data.departureStop.cityName + '</p>',
+                        '<p>To: ' + data.arrivalStop.cityName + '</p>',
+                        '<p>Departure Time: ' + data.departureStop.departureTime + '</p>',
+                        '<p>Arrival Time: ' + data.arrivalStop.arrivalTime + '</p>',
+                        // Add more fields as needed
+                        '<p><a href="#" onclick="cancelReservation(' + data.id + ');" class="btn btn-danger">Cancel Reservation</a></p>');
                 },
                 error: function () {
-                    $('#dataInfo').empty();
-                    $('#dataInfo').append('<p>Error retrieving data.</p>');
+                    $('#dataInfo').empty().append('<p class="text-danger">Wrong reservation details.</p>');
                 }
             });
-
-
         }
 
         function cancelReservation(reservationId) {
@@ -69,16 +64,21 @@
     </div>
 </nav>
 
-<h2>Retrieve Data by ID</h2>
+<div class="container mt-4">
+    <form onsubmit="retrieveData(); return false;">
+        <div class="form-group">
+            <label for="id">Enter Reservation Code:</label>
+            <input type="text" id="id" name="id" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="token">Enter Token:</label>
+            <input type="text" id="token" name="token" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Retrieve</button>
+    </form>
 
-<form onsubmit="retrieveData(); return false;">
-    <label for="id">Enter ID:</label>
-    <input type="text" id="id" name="id" required>
-    <input type="text" id="token" name="token" required>
-    <button type="submit">Retrieve</button>
-</form>
-
-<div id="dataInfo"></div>
+    <div id="dataInfo" class="mt-4"></div>
+</div>
 
 </body>
 </html>

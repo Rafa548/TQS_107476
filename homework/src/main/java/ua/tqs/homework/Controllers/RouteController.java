@@ -17,9 +17,7 @@ import java.util.Optional;
 @RequestMapping ("/routes")
 public class RouteController {
 
-    private RouteService routeService;
-
-    //fazer dps ao adicionar novo stop adicionar aos seats um false novo
+    private final RouteService routeService;
 
 
     public RouteController(RouteService routeService) {

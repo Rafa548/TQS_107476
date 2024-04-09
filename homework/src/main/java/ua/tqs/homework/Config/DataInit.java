@@ -17,14 +17,12 @@ import jakarta.annotation.PostConstruct;
 @Component
 public class DataInit {
 
-    private ReservationService reservationService;
     private RouteService routeService;
     private SeatService seatService;
     private StopService stopService;
 
     @Autowired
-    public DataInit(ReservationService reservationService, RouteService routeService, SeatService seatService, StopService stopService) {
-        this.reservationService = reservationService;
+    public DataInit(RouteService routeService, SeatService seatService, StopService stopService) {
         this.routeService = routeService;
         this.seatService = seatService;
         this.stopService = stopService;

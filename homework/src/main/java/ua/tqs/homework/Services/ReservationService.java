@@ -19,15 +19,15 @@ import java.util.Optional;
 @Service
 public class ReservationService {
 
-    private ReservationRepository reservationRepository;
+    private final ReservationRepository reservationRepository;
 
-    private SeatRepository seatRepository;
+    private final SeatRepository seatRepository;
 
-    private StopRepository stopRepository;
+    private final StopRepository stopRepository;
 
-    private RouteRepository routeRepository;
+    private final RouteRepository routeRepository;
 
-    private Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().getClass());
+    private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().getClass());
 
 
     public ReservationService(ReservationRepository reservationRepository, SeatRepository seatRepository, StopRepository stopRepository, RouteRepository routeRepository) {

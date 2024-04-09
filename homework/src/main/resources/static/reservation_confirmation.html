@@ -7,6 +7,16 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <style>
+        #totalPriceContainer {
+            display: flex;
+            align-items: center;
+        }
+
+        #currency {
+            margin-left: 10px; /* Adjust margin as needed */
+        }
+    </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -48,7 +58,12 @@
         <!-- Seat selection options will be dynamically populated here -->
     </div><br>
 
-    <p>Total Price: <span id="totalPriceDisplay">$0.00</span></p>
+    <!-- Container for total price and currency select -->
+    <div id="totalPriceContainer">
+        <p>Total Price: <span id="totalPriceDisplay">0.00</span></p>
+        <select id="currency" name="currency"></select><br>
+    </div>
+
 
     <input type="submit" value="Confirm Reservation">
 
@@ -131,8 +146,9 @@
     // Add event listener to the number of seats dropdown
     $('#numberOfSeats').on('change', function() {
         const numberOfSeats = parseInt($(this).val());
-        $('#totalPriceDisplay').text('$' + 0);
+        $('#totalPriceDisplay').text(0);
         populateSeatOptions(numberOfSeats);
+        populateCurrencyOptions();
     });
 
     function updateTotalPrice() {
@@ -146,7 +162,7 @@
                     const seatIndex = route.seats.findIndex(s => s.id === seatID);
                     const price = route.seats[seatIndex].priceMultiplier;
                     totalPrice += price * 10;
-                    $('#totalPriceDisplay').text('$' + totalPrice);
+                    $('#totalPriceDisplay').text(totalPrice);
                 })
                 .catch(function (error) {
                     // Handle errors here
@@ -235,6 +251,71 @@
                 console.error("Error fetching route information:", error);
             });
     });
+
+    // Function to populate currency options by fetching exchange rates from the endpoint
+    function populateCurrencyOptions() {
+        $.get("/exchangeRates", function(exchangeRates) {
+            const currencySelect = $('#currency');
+            currencySelect.empty(); // Clear previous currency options
+
+            // Set EUR as the default currency
+            currencySelect.append($('<option>', {
+                value: "EUR",
+                text: "EUR"
+            }));
+
+            // Extract available currencies from exchange rates and populate select options
+            const currencies = Object.keys(exchangeRates.rates);
+            currencies.forEach(currency => {
+                //console.log(currency)
+                currencySelect.append($('<option>', {
+                    value: currency,
+                    text: currency
+                }));
+            });
+
+        }).fail(function(xhr, status, error) {
+            console.error("Error fetching exchange rates:", error);
+        });
+    }
+
+    // Function to update total price with currency conversion
+    function updateTotalPriceWithCurrencyConversion(currency) {
+        // Fetch exchange rates from your API
+        $.get("/exchangeRates", function(exchangeRates) {
+
+            const selectedCurrencyRate = currency === 'EUR' ? 1 : exchangeRates.rates[currency];
+            let totalPrice = 0;
+
+            $('select[name^="seat"]').each(function() {
+                const $select = $(this);
+                fetchRoute(routeId)
+                    .then(function (route) {
+                        const seatID = parseInt($select.val());
+                        const seatIndex = route.seats.findIndex(s => s.id === seatID);
+                        const price = route.seats[seatIndex].priceMultiplier;
+                        totalPrice += price * 10;
+                        $('#totalPriceDisplay').text((totalPrice * selectedCurrencyRate).toFixed(2)); // Display converted total price
+                    })
+                    .catch(function (error) {
+                        // Handle errors here
+                    });
+            });
+
+        }).fail(function(xhr, status, error) {
+            console.error("Error fetching exchange rates:", error);
+        });
+    }
+
+    $('#currency').on('change', function() {
+        const selectedCurrency = $(this).val();
+        updateTotalPriceWithCurrencyConversion(selectedCurrency);
+    });
+
+
+    // Call the function to populate currency options
+    populateCurrencyOptions();
+
 </script>
 </body>
 </html>

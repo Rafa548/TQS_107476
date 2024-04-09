@@ -13,7 +13,7 @@ import java.util.List;
 @RequestMapping("/stops")
 public class StopController {
 
-    private StopService stopService;
+    private final StopService stopService;
 
     public StopController(StopService stopService) {
         this.stopService = stopService;
