@@ -100,8 +100,6 @@ class ReservationControllerMockTest {
     void testGetReservationById() throws Exception {
         when(reservationService.getReservationDetails(1L)).thenReturn(java.util.Optional.of(res1));
 
-        System.out.println(res1.getId());
-
         mockMvc.perform(get("/reservation/1")).andExpectAll(status().isOk(),
                 jsonPath("$.id").value(res1.getId()));
 
