@@ -1,4 +1,5 @@
 package ua.tqs.homework.Controllers;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
@@ -13,7 +14,6 @@ import ua.tqs.homework.Services.ReservationService;
 import ua.tqs.homework.Services.RouteService;
 import ua.tqs.homework.Services.SeatService;
 
-import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,7 +26,7 @@ public class ReservationController {
     private final ReservationService reservationService;
     private final SeatService seatService;
     private final RouteService routeService;
-    private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(ReservationController.class);
 
     public ReservationController(ReservationService reservationService, SeatService seatService, RouteService routeService) {
         this.reservationService = reservationService;
@@ -76,43 +76,41 @@ public class ReservationController {
     @GetMapping()
     public ResponseEntity<List<Reservation>> getAllReservations() {
         logger.info("Received request to get all reservations");
-        HttpStatus status = HttpStatus.OK;
         List<Reservation> reservations = reservationService.getAllReservations();
-        return new ResponseEntity<>(reservations, status);
+        logger.info("Returned {} reservations", reservations.size());
+        return ResponseEntity.ok(reservations);
     }
 
     @Operation(summary = "Get reservation by ID")
     @GetMapping("/{id}")
     public ResponseEntity<Reservation> getReservationById(@PathVariable Long id) {
         logger.info("Received request to get reservation by ID");
-        HttpStatus status = HttpStatus.OK;
-        Reservation reservation = reservationService.getReservationDetails(id).orElse(null);
-        if (reservation == null) {
-            logger.error("Reservation not found");
+        Optional<Reservation> optionalReservation = reservationService.getReservationDetails(id);
+        if (optionalReservation.isEmpty()) {
+            logger.error("Reservation not found for ID {}", id);
             return ResponseEntity.notFound().build();
         }
-        return new ResponseEntity<>(reservation, status);
+        return ResponseEntity.ok(optionalReservation.get());
     }
 
     @Operation(summary = "Get reservation by ID and authentication token")
     @GetMapping("/{id}/{authToken}")
     public ResponseEntity<Reservation> getReservationByIdAndAuthToken(@PathVariable Long id, @PathVariable String authToken) {
         logger.info("Received request to get reservation by ID and authentication token");
-        HttpStatus status = HttpStatus.OK;
-        Reservation reservation = reservationService.getReservationDetails(id).orElse(null);
-        if (reservation == null || !reservation.getAuthToken().equals(authToken)) {
-            logger.error("Reservation not found or invalid authentication token");
+        Optional<Reservation> optionalReservation = reservationService.getReservationDetails(id);
+        if (optionalReservation.isEmpty() || !optionalReservation.get().getAuthToken().equals(authToken)) {
+            logger.error("Reservation not found or invalid authentication token for ID {}", id);
             return ResponseEntity.notFound().build();
         }
-        return new ResponseEntity<>(reservation, status);
+        return ResponseEntity.ok(optionalReservation.get());
     }
 
     @Operation(summary = "Cancel a reservation by ID")
     @DeleteMapping("/cancel/{id}")
     public ResponseEntity<Void> deleteReservation(@PathVariable Long id) {
-        logger.info("Received request to cancel reservation");
-        HttpStatus status = HttpStatus.OK;
+        logger.info("Received request to cancel reservation with ID {}", id);
         reservationService.deleteReservation(id);
-        return new ResponseEntity<>(status);
+        return ResponseEntity.ok().build();
     }
 }
+

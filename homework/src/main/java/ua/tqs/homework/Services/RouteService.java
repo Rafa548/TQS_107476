@@ -10,7 +10,6 @@ import ua.tqs.homework.Entities.Stop;
 import ua.tqs.homework.repository.RouteRepository;
 import ua.tqs.homework.repository.StopRepository;
 
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,10 +18,9 @@ import java.util.Optional;
 @Service
 public class RouteService {
 
-    private RouteRepository routeRepository;
-    private StopRepository stopRepository;
-
-    private Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().getClass());
+    private final RouteRepository routeRepository;
+    private final StopRepository stopRepository;
+    private static final Logger logger = LoggerFactory.getLogger(RouteService.class);
 
     @Autowired
     public RouteService(RouteRepository routeRepository, StopRepository stopRepository) {
@@ -31,23 +29,22 @@ public class RouteService {
     }
 
     public void saveRoute(Route route) {
-        logger.debug("Saving route with {} stops", route.getStops().size());
-
+        //logger.debug("Saving route with {} stops", route.getStops().size());
         routeRepository.save(route);
     }
 
     public List<Route> getAllRoutes() {
-        logger.debug("Getting all routes");
+        logger.debug("Fetching all routes");
         return routeRepository.findAll();
     }
 
     public Optional<Route> getRouteDetails(Long id) {
-        logger.debug("Getting route with id {}", id);
+        logger.debug("Fetching route details for id: {}", id);
         return routeRepository.findById(id);
     }
 
     public void deleteRoute(Long id) {
-        logger.debug("Deleting route with id {}", id);
+        logger.debug("Deleting route with id: {}", id);
         routeRepository.deleteById(id);
     }
 
@@ -57,13 +54,12 @@ public class RouteService {
     }
 
     public Route getRouteById(Long id) {
-        logger.debug("Getting route with id {}", id);
+        logger.debug("Fetching route by id: {}", id);
         return routeRepository.findById(id).orElse(null);
     }
 
     public List<Route> searchRoutes(String origin, String destination) {
         logger.debug("Searching routes from {} to {}", origin, destination);
-
         Stop originStop = stopRepository.findByCityName(origin);
         Stop destinationStop = stopRepository.findByCityName(destination);
         List<Route> routes = routeRepository.findAll();
@@ -71,14 +67,9 @@ public class RouteService {
         for (Route route : routes) {
             List<Stop> stops = route.getStops();
             for (int i = 0; i < stops.size(); i++) {
-                //if the stop is the origin
                 if (stops.get(i).equals(originStop)) {
-
-                    //iterate over all stops
                     for (int j = i + 1; j < stops.size(); j++) {
-                        //if the stop is the destination
                         if (stops.get(j).equals(destinationStop)) {
-                            //add the route to the list
                             routesFound.add(route);
                         }
                     }
@@ -97,7 +88,7 @@ public class RouteService {
         for (Route route : routes) {
             List<Stop> stops = route.getStops();
             for (int i = 0; i < stops.size(); i++) {
-                if (stops.get(i).equals(destinationStop) && i!=0) {
+                if (stops.get(i).equals(destinationStop) && i != 0) {
                     routesFound.add(route);
                 }
             }
@@ -114,7 +105,7 @@ public class RouteService {
         for (Route route : routes) {
             List<Stop> stops = route.getStops();
             for (int i = 0; i < stops.size(); i++) {
-                if (stops.get(i).equals(originStop) && i!=stops.size()-1) {
+                if (stops.get(i).equals(originStop) && i != stops.size() - 1) {
                     routesFound.add(route);
                 }
             }
@@ -124,12 +115,14 @@ public class RouteService {
     }
 
     public List<Seat> getRouteSeats(Long id) {
-        logger.debug("Getting seats for route with id {}", id);
+        logger.debug("Fetching seats for route with id: {}", id);
         Route route = routeRepository.findById(id).orElse(null);
         if (route == null) {
+            logger.warn("Route not found for id: {}", id);
             return Collections.emptyList();
         }
         logger.info("Found {} seats", route.getSeats().size());
         return route.getSeats();
     }
 }
+

@@ -96,11 +96,10 @@ class StopServiceMockRepoTest {
     void testGetStopDetails() {
         when(stopRepository.findById(stopPorto.getId())).thenReturn(java.util.Optional.of(stopPorto));
 
-        Stop stop = stopService.getStopDetails(stopPorto.getId());
+        Stop stop = stopService.getStopDetails(stopPorto.getId()).orElse(null);
 
-        assert (stop.equals(stopPorto));
-        assertEquals(stop, stopPorto);
-        assertEquals(stop.getCityName(), stopPorto.getCityName());
+        assertEquals(stopPorto.getId(), stop.getId());
+        assertEquals(stopPorto.getCityName(), stop.getCityName());
     }
 
 }

@@ -1,6 +1,7 @@
 package ua.tqs.homework.Services;
 
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ua.tqs.homework.Entities.Seat;
 import ua.tqs.homework.repository.SeatRepository;
@@ -11,28 +12,36 @@ import java.util.Optional;
 @Service
 public class SeatService {
 
-    private SeatRepository seatRepository;
+    private final SeatRepository seatRepository;
+    private static final Logger logger = LoggerFactory.getLogger(SeatService.class);
 
     public SeatService(SeatRepository seatRepository) {
         this.seatRepository = seatRepository;
     }
 
     public void saveSeat(Seat seat) {
-        System.out.println("Saving seat with id: " + seat.getId());
-        System.out.println("Seat number: " + seat.getSeatIdentifier());
-        System.out.println("Is booked: " + seat.getIsBooked());
-        System.out.println("Route: " + seat.getRoute());
-        System.out.println("Reservation: " + seat.getReservations());
-        System.out.println("Seat id: " + seat.getId());
+        logger.info("Saving seat: {}", seat);
         seatRepository.save(seat);
+        logger.info("Seat saved successfully");
     }
 
     public List<Seat> getAllSeats() {
-        return seatRepository.findAll();
+        logger.debug("Fetching all seats");
+        List<Seat> seats = seatRepository.findAll();
+        logger.info("Fetched {} seats", seats.size());
+        return seats;
     }
 
     public Optional<Seat> getSeatDetails(Long id) {
-        return seatRepository.findById(id);
+        logger.debug("Fetching seat details for id: {}", id);
+        Optional<Seat> seat = seatRepository.findById(id);
+        if (seat.isPresent()) {
+            logger.info("Seat details found: {}", seat.get());
+        } else {
+            logger.warn("Seat details not found for id: {}", id);
+        }
+        return seat;
     }
-
 }
+
+
