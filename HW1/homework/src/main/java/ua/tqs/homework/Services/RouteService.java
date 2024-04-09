@@ -58,9 +58,18 @@ public class RouteService {
     }
 
     public List<Route> searchRoutes(String origin, String destination) {
+
+        final String LOG_MESSAGE = "Found {} routes";
         logger.debug("Searching routes from {} to {}", origin, destination);
+
         Stop originStop = stopRepository.findByCityName(origin);
         Stop destinationStop = stopRepository.findByCityName(destination);
+
+        if (originStop == null || destinationStop == null) {
+            logger.warn("Origin or destination stop not found");
+            return Collections.emptyList();
+        }
+
         List<Route> routes = routeRepository.findAll();
         List<Route> routesFound = new ArrayList<>();
         for (Route route : routes) {
@@ -75,7 +84,7 @@ public class RouteService {
                 }
             }
         }
-        logger.info("Found {} routes", routesFound.size());
+        logger.info(LOG_MESSAGE, routesFound.size());
         return routesFound;
     }
 
