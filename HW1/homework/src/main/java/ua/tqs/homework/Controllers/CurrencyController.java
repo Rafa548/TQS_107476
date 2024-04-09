@@ -1,5 +1,7 @@
 package ua.tqs.homework.Controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/exchangeRates")
+@Tag(name = "Currency Exchange", description = "Endpoints for fetching currency exchange rates")
 public class CurrencyController {
 
     private final CurrencyExchangeService currencyExchangeService;
@@ -21,6 +24,7 @@ public class CurrencyController {
     }
 
     @GetMapping
+    @Operation(summary = "Get Exchange Rates", description = "Fetches the latest exchange rates")
     public Map<String, Object> getExchangeRates() {
         logger.info("Request received for fetching exchange rates...");
         Map<String, Object> exchangeRates = currencyExchangeService.getExchangeRates();
@@ -28,3 +32,4 @@ public class CurrencyController {
         return exchangeRates;
     }
 }
+
