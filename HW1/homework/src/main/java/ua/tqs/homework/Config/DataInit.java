@@ -1,5 +1,7 @@
 package ua.tqs.homework.Config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ua.tqs.homework.Entities.*;
 import ua.tqs.homework.Services.ReservationService;
 import ua.tqs.homework.Services.RouteService;
@@ -17,14 +19,14 @@ import jakarta.annotation.PostConstruct;
 @Component
 public class DataInit {
 
-    private ReservationService reservationService;
-    private RouteService routeService;
-    private SeatService seatService;
-    private StopService stopService;
+    private final RouteService routeService;
+    private final SeatService seatService;
+    private final StopService stopService;
+
+    private static final Logger logger = LoggerFactory.getLogger(DataInit.class);
 
     @Autowired
-    public DataInit(ReservationService reservationService, RouteService routeService, SeatService seatService, StopService stopService) {
-        this.reservationService = reservationService;
+    public DataInit(RouteService routeService, SeatService seatService, StopService stopService) {
         this.routeService = routeService;
         this.seatService = seatService;
         this.stopService = stopService;
@@ -32,11 +34,14 @@ public class DataInit {
 
     @PostConstruct
     public void initialize() {
+        logger.info("Initializing data...");
 
         if (!routeService.getAllRoutes().isEmpty()) {
+            logger.info("Routes already exist. Skipping initialization.");
             return;
         }
 
+        logger.info("Creating routes...");
         Route route1 = new Route();
         routeService.saveRoute(route1);
         Route route2 = new Route();
@@ -44,6 +49,7 @@ public class DataInit {
         Route route3 = new Route();
         routeService.saveRoute(route3);
 
+        logger.info("Creating stops...");
         Stop stop1 = new Stop("Porto", "5", "6");
         Stop stop2 = new Stop("Lisboa", "6", "8");
         Stop stop3 = new Stop("Braga", "8", "10");
@@ -54,15 +60,17 @@ public class DataInit {
         route2.setStops(List.of(stop1, stop2, stop3));
         route3.setStops(List.of(stop1, stop2, stop3, stop4));
 
+        logger.info("Saving stops...");
         stopService.saveStop(stop1);
         stopService.saveStop(stop2);
         stopService.saveStop(stop3);
         stopService.saveStop(stop4);
         stopService.saveStop(stop5);
+
+        logger.info("Saving routes...");
         routeService.saveRoute(route1);
         routeService.saveRoute(route2);
         routeService.saveRoute(route3);
-
 
         List<Boolean> isBooked = new ArrayList<>();
         List<Boolean> isBookedTrue = new ArrayList<>();
@@ -75,11 +83,10 @@ public class DataInit {
                 isBookedTrue.add(true);
             }
         } catch (Exception e) {
-            System.out.println("exception: " + e);
+            logger.error("Exception occurred while initializing stops: {}", e.getMessage());
         }
 
-
-        //generate seats with letter and number
+        logger.info("Creating and saving seats...");
         String[] letters = {"A", "B", "C", "D"};
         for (int i = 1; i <= 4; i++) {
             for (String letter : letters) {
@@ -90,8 +97,7 @@ public class DataInit {
                     seatService.saveSeat(seat);
                     seatService.saveSeat(seat2);
                     seatService.saveSeat(seat3);
-                }
-                else {
+                } else {
                     Seat seat = new Seat(i + letter, 1, isBooked, route1);
                     Seat seat2 = new Seat(i + letter, 2, isBookedTrue, route2);
                     Seat seat3 = new Seat(i + letter, 2, isBookedTrue, route3);
@@ -102,8 +108,7 @@ public class DataInit {
             }
         }
 
+        logger.info("Data initialization completed.");
     }
-
-
 }
 

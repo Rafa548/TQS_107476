@@ -212,7 +212,7 @@ class ReservationServiceMockRepoTest {
     @Test
     void testGetReservationDetails() {
         when(reservationRepository.findById(1L)).thenReturn(Optional.of(reservation1));
-        assertEquals(reservationService.getReservationDetails(1L).get().getClientName(), "John Doe");
+        assertEquals("John Doe",reservationService.getReservationDetails(1L).get().getClientName());
         assertEquals(reservationService.getReservationDetails(1L).get().getRoute(), route1);
     }
 

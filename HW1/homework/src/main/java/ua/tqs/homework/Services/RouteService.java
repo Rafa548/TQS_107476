@@ -29,7 +29,6 @@ public class RouteService {
     }
 
     public void saveRoute(Route route) {
-        //logger.debug("Saving route with {} stops", route.getStops().size());
         routeRepository.save(route);
     }
 
