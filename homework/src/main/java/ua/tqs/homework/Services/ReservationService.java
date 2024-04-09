@@ -106,4 +106,23 @@ public class ReservationService {
         return reservationRepository.findById(id);
     }
 
+    public void deleteReservation(Long id) {
+        Reservation reservation = reservationRepository.findById(id).orElse(null);
+        if (reservation == null) {
+            logger.error("Reservation not found {}", id);
+            return;
+        }
+        List<Seat> seats = reservation.getSeats();
+        for (Seat seat : seats) {
+            Stop arrivalStop = reservation.getArrivalStop();
+            Route route = reservation.getRoute();
+            Seat seatInDb = seatRepository.findById(seat.getId()).orElse(null);
+            if (seatInDb != null) {
+                List<Boolean> isBooked = seatInDb.getIsBooked();
+                isBooked.set(route.getStops().indexOf(arrivalStop)-1, false);
+                seatRepository.save(seatInDb);
+            }
+        }
+        reservationRepository.deleteById(id);
+    }
 }

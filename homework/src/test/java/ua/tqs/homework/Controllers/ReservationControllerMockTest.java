@@ -18,8 +18,7 @@ import ua.tqs.homework.Services.SeatService;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -54,6 +53,7 @@ class ReservationControllerMockTest {
         res3 = new Reservation();
         res4 = new Reservation();
         res1.setId(1L);
+        res1.setAuthToken("1234");
         res2.setId(2L);
         res3.setId(3L);
         res4.setId(4L);
@@ -79,7 +79,6 @@ class ReservationControllerMockTest {
         reservationService.saveReservation(res2);
         reservationService.saveReservation(res3);
         reservationService.saveReservation(res4);
-        System.out.println(res1.getId());
     }
 
     @Test
@@ -140,4 +139,57 @@ class ReservationControllerMockTest {
                 status().isBadRequest()
         );
     }
+
+    @Test
+    void testCreateReservationRouteNotFound() throws Exception {
+        when(reservationService.saveReservation(any())).thenReturn(java.util.Optional.of(res1));
+        when(routeService.getRouteDetails(any())).thenReturn(java.util.Optional.empty());
+        when(seatService.getSeatDetails(any())).thenReturn(java.util.Optional.of(seat));
+
+        mockMvc.perform(post("/reservation").contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(res1))).andExpectAll(
+                status().isBadRequest()
+        );
+    }
+
+    @Test
+    void testCreateReservationSeatNotFound() throws Exception {
+        when(reservationService.saveReservation(any())).thenReturn(java.util.Optional.of(res1));
+        when(routeService.getRouteDetails(any())).thenReturn(java.util.Optional.of(route));
+        when(seatService.getSeatDetails(any())).thenReturn(java.util.Optional.empty());
+
+        mockMvc.perform(post("/reservation").contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(res1))).andExpectAll(
+                status().isBadRequest()
+        );
+    }
+
+
+    @Test
+    void testGetReservationByIdAndAuthToken() throws Exception {
+        when(reservationService.getReservationDetails(1L)).thenReturn(java.util.Optional.of(res1));
+
+        mockMvc.perform(get("/reservation/1/1234")).andExpectAll(status().isOk(),
+                jsonPath("$.id").value(res1.getId()));
+
+        verify(reservationService, times(1)).getReservationDetails(1L);
+    }
+
+    @Test
+    void testGetReservationByIdAndAuthTokenNotFound() throws Exception {
+        when(reservationService.getReservationDetails(1L)).thenReturn(java.util.Optional.empty());
+
+        mockMvc.perform(get("/reservation/1/1234")).andExpectAll(status().isNotFound());
+
+        verify(reservationService, times(1)).getReservationDetails(1L);
+    }
+
+    @Test
+    void testDeleteReservation() throws Exception {
+        doNothing().when(reservationService).deleteReservation(1L);
+
+        mockMvc.perform(delete("/reservation/cancel/1")).andExpectAll(status().isOk());
+
+        verify(reservationService, times(1)).deleteReservation(1L);
+        verify(seatService, times(1)).saveSeat(seat);
+    }
+
 }

@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ua.tqs.homework.Entities.Route;
+import ua.tqs.homework.Entities.Seat;
 import ua.tqs.homework.Services.RouteService;
+import ua.tqs.homework.Services.SeatService;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -29,7 +31,12 @@ class RouteControllerMockServiceTest {
     @MockBean
     RouteService routeService;
 
+    @MockBean
+    SeatService seatService;
+
     Route route1, route2, route3;
+
+    Seat seat1, seat2, seat3, seat4, seat5, seat6, seat7, seat8, seat9, seat10;
 
     @BeforeEach
     void setup() {
@@ -43,6 +50,20 @@ class RouteControllerMockServiceTest {
         routeService.saveRoute(route1);
         routeService.saveRoute(route2);
         routeService.saveRoute(route3);
+
+        seat1 = new Seat();
+        seat2 = new Seat();
+        seat3 = new Seat();
+        seat4 = new Seat();
+        seat5 = new Seat();
+        seat6 = new Seat();
+
+        seat1.setId(1L);
+        seat2.setId(2L);
+        seat3.setId(3L);
+        seat4.setId(4L);
+        seat5.setId(5L);
+        seat6.setId(6L);
     }
 
     @Test
@@ -150,5 +171,24 @@ class RouteControllerMockServiceTest {
 
         verify(routeService, times(1)).searchRoutesDestination("Faro");
     }
+
+
+    @Test
+    void testGetSeatsAvailable() throws Exception {
+        when(routeService.getRouteSeats(1L)).thenReturn(List.of(seat1, seat2, seat3, seat4, seat5, seat6));
+
+        mockMvc.perform(get("/routes/1/seats")).andExpectAll(status().isOk(),
+                jsonPath("$").isArray(),
+                jsonPath("$[0].id").exists(),
+                jsonPath("$[1].id").exists(),
+                jsonPath("$[2].id").exists(),
+                jsonPath("$[3].id").exists(),
+                jsonPath("$[4].id").exists(),
+                jsonPath("$[5].id").exists());
+
+        verify(routeService, times(1)).getRouteSeats(1L);
+    }
+
+
 
 }

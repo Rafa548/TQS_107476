@@ -78,4 +78,20 @@ public class ReservationController {
         return new ResponseEntity<>(reservation, status);
     }
 
+    @GetMapping("/{id}/{authToken}")
+    public ResponseEntity<Reservation> getReservationByIdAndAuthToken(@PathVariable Long id, @PathVariable String authToken) {
+        HttpStatus status = HttpStatus.OK;
+        Reservation reservation = reservationService.getReservationDetails(id).orElse(null);
+        if (reservation == null || !reservation.getAuthToken().equals(authToken))
+            return ResponseEntity.notFound().build();
+        return new ResponseEntity<>(reservation, status);
+    }
+
+    @DeleteMapping("/cancel/{id}")
+    public ResponseEntity<Void> deleteReservation(@PathVariable Long id) {
+        HttpStatus status = HttpStatus.OK;
+        reservationService.deleteReservation(id);
+        return new ResponseEntity<>(status);
+    }
+
 }

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Retrieve Data</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
+        function retrieveData() {
+            var id = $('#id').val();
+            var token = $('#token').val();
+            $.ajax({
+                type: 'GET',
+                url: '/reservation/' + id + '/' + token,
+
+                success: function (data) {
+                    $('#dataInfo').empty();
+                    $('#dataInfo').append('<h3>Data Retrieved:</h3>');
+                    $('#dataInfo').append('<p>ID: ' + data.id + '</p>');
+                    $('#dataInfo').append('<p>Name: ' + data.clientName + '</p>');
+                    $('#dataInfo').append('<p>From: ' + data.departureStop.cityName + '</p>');
+                    $('#dataInfo').append('<p>To: ' + data.arrivalStop.cityName + '</p>');
+                    $('#dataInfo').append('<p>Departure Time: ' + data.departureStop.departureTime + '</p>');
+                    $('#dataInfo').append('<p>Arrival Time: ' + data.arrivalStop.arrivalTime + '</p>');
+                    // Add more fields as needed
+                    $('#dataInfo').append('<p><a href="#" onclick="cancelReservation(' + data.id + ');">Cancel Reservation</a></p>');
+                },
+                error: function () {
+                    $('#dataInfo').empty();
+                    $('#dataInfo').append('<p>Error retrieving data.</p>');
+                }
+            });
+
+
+        }
+
+        function cancelReservation(reservationId) {
+            $.ajax({
+                type: 'DELETE',
+                url: 'reservation/cancel/' + reservationId ,
+                success: function () {
+                    alert('Reservation cancelled successfully.');
+                    window.location.href = 'home.html'; // Redirect to homepage
+                },
+                error: function () {
+                    alert('Error cancelling reservation.');
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+
+<h2>Retrieve Data by ID</h2>
+
+<form onsubmit="retrieveData(); return false;">
+    <label for="id">Enter ID:</label>
+    <input type="text" id="id" name="id" required>
+    <input type="text" id="token" name="token" required>
+    <button type="submit">Retrieve</button>
+</form>
+
+<div id="dataInfo"></div>
+
+</body>
+</html>
